@@ -10,12 +10,9 @@ module OANDA.Accounts
        , accounts
        ) where
 
-import           Control.Lens
 import           Data.Aeson
-import qualified Data.Map as Map
 import qualified Data.Vector as V
 import           GHC.Generics (Generic)
-import           Network.Wreq
 
 import           OANDA.Util
 import           OANDA.Types
@@ -31,14 +28,9 @@ data Account = Account { accountAccountId :: Int
 instance FromJSON Account where
   parseJSON = genericParseJSON $ jsonOpts "account"
 
-type AccountResponse = IO (Response (Map.Map String (V.Vector Account)))
-
 -- | Get all accounts for given access token
 accounts :: APIType -> AccessToken -> IO (V.Vector Account)
 accounts apit t = do
   let url = apiEndpoint apit ++ "/v1/accounts"
       opts = constructOpts t []
-  r <- asJSON =<< getWith opts url :: AccountResponse
-  let body = r ^. responseBody
-      as = body Map.! "accounts"
-  return as
+  jsonResponse url opts "accounts"
