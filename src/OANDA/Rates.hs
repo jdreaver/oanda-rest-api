@@ -46,4 +46,4 @@ instruments apit (AccountID aid) t (InstrumentsArgs fs is) = do
                              , ("instruments", is)
                              , ("fields", fs)
                              ]
-  jsonResponse url opts "instruments"
+  jsonResponseArray url opts "instruments"

@@ -8,6 +8,7 @@ module OANDA.Util
        , commaList
        , jsonOpts
        , jsonResponse
+       , jsonResponseArray
        ) where
 
 import           Data.Aeson (FromJSON)
@@ -47,9 +48,13 @@ jsonOpts s = TH.defaultOptions { TH.fieldLabelModifier = firstLower . drop (leng
         firstLower (x:xs) = toLower x : xs
 
 -- | Boilerplate function to perform a request and extract the response body.
-jsonResponse :: (FromJSON a) => String -> Options -> String -> IO a
-jsonResponse url opts name =
+jsonResponse :: (FromJSON a) => String -> Options -> IO a
+jsonResponse url opts =
   do r <- asJSON =<< getWith opts url
-     let body = r ^. responseBody
-         is' = body Map.! (name :: String)
-     return is'
+     return $ r ^. responseBody
+
+-- | Boilerplate function to perform a request and extract the response body.
+jsonResponseArray :: (FromJSON a) => String -> Options -> String -> IO a
+jsonResponseArray url opts name =
+  do body <- jsonResponse url opts
+     return $ body Map.! (name :: String)

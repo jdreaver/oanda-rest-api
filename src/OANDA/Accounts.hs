@@ -8,6 +8,8 @@
 module OANDA.Accounts
        ( Account (..)
        , accounts
+       , AccountInfo (..)
+       , accountInfo
        ) where
 
 import           Data.Aeson
@@ -33,4 +35,30 @@ accounts :: APIType -> AccessToken -> IO (V.Vector Account)
 accounts apit t = do
   let url = apiEndpoint apit ++ "/v1/accounts"
       opts = constructOpts t []
-  jsonResponse url opts "accounts"
+  jsonResponseArray url opts "accounts"
+
+
+-- | Get all account info associated with an account ID.
+accountInfo :: APIType -> AccountID -> AccessToken -> IO AccountInfo
+accountInfo apit (AccountID aid) t =
+  do let url = apiEndpoint apit ++ "/v1/accounts/" ++ show aid
+         opts = constructOpts t []
+     jsonResponse url opts
+
+
+data AccountInfo = AccountInfo
+  { accountInfoAccountId       :: Integer
+  , accountInfoAccountName     :: String
+  , accountInfoBalance         :: Double
+  , accountInfoUnrealizedPl    :: Double
+  , accountInfoRealizedPl      :: Double
+  , accountInfoMarginUsed      :: Double
+  , accountInfoMarginAvail     :: Double
+  , accountInfoOpenTrades      :: Integer
+  , accountInfoOpenOrders      :: Integer
+  , accountInfoMarginRate      :: Double
+  , accountInfoAccountCurrency :: String
+  } deriving (Show, Generic)
+
+instance FromJSON AccountInfo where
+  parseJSON = genericParseJSON $ jsonOpts "accountInfo"
