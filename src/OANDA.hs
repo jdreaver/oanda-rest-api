@@ -1,6 +1,7 @@
 module OANDA
-    ( someFunc
+    ( module X
     ) where
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+import OANDA.Accounts as X
+import OANDA.Rates as X
+import OANDA.Types as X
