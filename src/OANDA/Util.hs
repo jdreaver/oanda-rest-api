@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | Utility functions.
@@ -12,6 +13,11 @@ module OANDA.Util
        , jsonResponseArray
        , formatTimeRFC3339
        ) where
+
+
+#if !MIN_VERSION_base(4,8,0)
+import           System.Locale (defaultTimeLocale)
+#endif
 
 import           Data.Aeson (FromJSON)
 import qualified Data.Aeson.TH as TH

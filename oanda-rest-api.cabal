@@ -27,8 +27,9 @@ library
                      , bytestring >= 0.10.0
                      , containers >= 0.5.2
                      , lens >= 4.0
+                     , old-locale >= 1.0.0.6
                      , text >= 1.2.0
-                     , time >= 1.5
+                     , time >= 1.4
                      , vector >= 0.10.0
                      , wreq >= 0.3.0.0
   default-language:    Haskell2010
@@ -42,8 +43,9 @@ test-suite tests
                     , bytestring >= 0.10.0
                     , containers >= 0.5.2
                     , lens >= 4.0
+                    , old-locale >= 1.0.0.6
                     , text >= 1.2.0
-                    , time >= 1.5
+                    , time >= 1.4
                     , vector >= 0.10.0
                     , wreq >= 0.3.0.0
 
