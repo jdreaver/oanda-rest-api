@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- | Utility functions.
 
@@ -20,15 +21,17 @@ module OANDA.Util
 import           System.Locale (defaultTimeLocale)
 #endif
 
-import           Data.Aeson (FromJSON)
-import qualified Data.Aeson.TH as TH
-import           Data.Monoid ((<>))
-import           Data.Time
 import           Control.Lens
+import           Data.Aeson
+import qualified Data.Aeson.TH as TH
 import           Data.ByteString (append)
 import           Data.Char (toLower)
+import           Data.Decimal
 import qualified Data.Map as Map
+import           Data.Monoid ((<>))
+import           Data.Scientific
 import           Data.Text (Text, intercalate)
+import           Data.Time
 import           Network.Wreq
 
 import           OANDA.Types
@@ -89,3 +92,9 @@ formatTimeRFC3339 zt@(ZonedTime _ z) = formatTime defaultTimeLocale "%FT%T" zt <
         printZone = if timeZoneStr == timeZoneOffsetString utc
                     then "Z"
                     else take 3 timeZoneStr <> ":" <> drop 3 timeZoneStr
+
+
+instance (Integral a) => FromJSON (DecimalRaw a) where
+  parseJSON (Number n) =
+    pure $ Decimal ((*) (-1) $ fromIntegral $ base10Exponent n) (fromIntegral $ coefficient n)
+  parseJSON _          = mempty

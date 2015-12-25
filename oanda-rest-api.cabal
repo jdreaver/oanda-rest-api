@@ -26,8 +26,10 @@ library
                      , aeson >= 0.8.0
                      , bytestring >= 0.10.0
                      , containers >= 0.5.2
+                     , Decimal >= 0.4.2
                      , lens >= 4.0
                      , old-locale >= 1.0.0.6
+                     , scientific >= 0.3.3.0
                      , text >= 1.2.0
                      , time >= 1.4
                      , vector >= 0.10.0
@@ -42,8 +44,10 @@ test-suite tests
                     , aeson >= 0.8.0
                     , bytestring >= 0.10.0
                     , containers >= 0.5.2
+                    , Decimal >= 0.4.2
                     , lens >= 4.0
                     , old-locale >= 1.0.0.6
+                    , scientific >= 0.3.3.0
                     , text >= 1.2.0
                     , time >= 1.4
                     , vector >= 0.10.0

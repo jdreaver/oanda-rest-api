@@ -1,4 +1,5 @@
 resolver: lts-3.19
 packages:
   - '.'
-extra-deps: []
+extra-deps:
+  - Decimal-0.4.2
