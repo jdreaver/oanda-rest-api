@@ -18,6 +18,7 @@ module OANDA.Util
 
 
 #if !MIN_VERSION_base(4,8,0)
+import           Control.Applicative (pure)
 import           System.Locale (defaultTimeLocale)
 #endif
 
@@ -28,7 +29,11 @@ import           Data.ByteString (append)
 import           Data.Char (toLower)
 import           Data.Decimal
 import qualified Data.Map as Map
-import           Data.Monoid ((<>))
+import           Data.Monoid (
+#if !MIN_VERSION_base(4,8,0)
+  mempty,
+#endif
+  (<>))
 import           Data.Scientific
 import           Data.Text (Text, intercalate)
 import           Data.Time
