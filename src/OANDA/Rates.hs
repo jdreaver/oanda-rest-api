@@ -11,12 +11,13 @@ module OANDA.Rates
        , instruments
        , Price (..)
        , prices
-       , Candlestick (..)
-       , candles
+       , MidpointCandlestick (..)
+       , midpointCandles
+       , BidAskCandlestick (..)
+       , bidaskCandles
        , CandlesArgs (..)
        , candlesArgs
        , CandlesCount (..)
-       , CandleFormat (..)
        , DayOfWeek (..)
        , Granularity (..)
        ) where
@@ -27,6 +28,7 @@ import           Data.Text (Text, pack)
 import           Data.Time
 import qualified Data.Vector as V
 import           GHC.Generics (Generic)
+import           Network.Wreq (Options)
 
 import           OANDA.Util
 import           OANDA.Types
@@ -81,62 +83,87 @@ instance FromJSON Price where
   parseJSON = genericParseJSON $ jsonOpts "price"
 
 
--- | Retrieve the price history of a single instrument
-candles :: OandaData -> InstrumentText -> CandlesArgs -> IO (V.Vector Candlestick)
-candles od i (CandlesArgs c g cfmt di atz wa) =
-  do let url   = baseURL od ++ "/v1/candles"
-         cfmt' = map toLower (show cfmt)
-         opts  = constructOpts od $ [ ("instrument", [pack i])
-                                    , ("granularity", [pack $ show g])
-                                    , ("candleFormat", [pack cfmt'])
-                                    , ("dailyAlignment", [pack $ show di])
-                                    , ("alignmentTimeZone", [pack atz])
-                                    , ("weeklyAlignment", [pack $ show wa])
-                                    ] ++ countOpts c
+-- | Retrieve the price history of a single instrument in midpoint candles
+midpointCandles :: OandaData -> InstrumentText -> CandlesArgs ->
+                   IO (V.Vector MidpointCandlestick)
+midpointCandles od i args =
+  do let (url, opts) = candleOpts od i args "midpoint"
+     response <- jsonResponse url opts :: IO MidpointCandlesResponse
+     return $ _midcandlesResponseCandles response
 
-     response <- jsonResponse url opts :: IO CandlesResponse
-     return $ _candlesResponseCandles response
-  where countOpts (Count count) = [("count", [pack $ show count])]
+-- | Retrieve the price history of a single instrument in bid/ask candles
+bidaskCandles :: OandaData -> InstrumentText -> CandlesArgs ->
+                 IO (V.Vector BidAskCandlestick)
+bidaskCandles od i args =
+  do let (url, opts) = candleOpts od i args "bidask"
+     response <- jsonResponse url opts :: IO BidAskCandlesResponse
+     return $ _bidaskResponseCandles response
+
+
+-- | Utility function for both candle history functions
+candleOpts :: OandaData -> InstrumentText -> CandlesArgs -> String -> (String, Options)
+candleOpts od i (CandlesArgs c g di atz wa) fmt = (url, opts)
+  where url   = baseURL od ++ "/v1/candles"
+        opts  = constructOpts od $ [ ("instrument", [pack i])
+                                   , ("granularity", [pack $ show g])
+                                   , ("candleFormat", [pack fmt])
+                                   , ("dailyAlignment", [pack $ show di])
+                                   , ("alignmentTimeZone", [pack atz])
+                                   , ("weeklyAlignment", [pack $ show wa])
+                                   ] ++ countOpts c
+        countOpts (Count count) = [("count", [pack $ show count])]
         countOpts (StartEnd st ed incf) = [ ("start", [pack $ formatTimeRFC3339 st])
                                           , ("end", [pack $ formatTimeRFC3339 ed])
                                           , ("includeFirst", [pack $ map toLower (show incf)])
                                           ]
 
-data Candlestick = Candlestick
-  { candlesticktime     :: ZonedTime
-  , candlestickopenMid  :: Double
-  , candlestickhighMid  :: Double
-  , candlesticklowMid   :: Double
-  , candlestickcloseMid :: Double
-  , candlestickvolume   :: Int
-  , candlestickcomplete :: Bool
+data MidpointCandlestick = MidpointCandlestick
+  { midpointCandlestickTime     :: ZonedTime
+  , midpointCandlestickOpenMid  :: Double
+  , midpointCandlestickHighMid  :: Double
+  , midpointCandlestickLowMid   :: Double
+  , midpointCandlestickCloseMid :: Double
+  , midpointCandlestickVolume   :: Int
+  , midpointCandlestickComplete :: Bool
   } deriving (Show, Generic)
 
-instance FromJSON Candlestick where
-  parseJSON = genericParseJSON $ jsonOpts "candlestick"
+instance FromJSON MidpointCandlestick where
+  parseJSON = genericParseJSON $ jsonOpts "midpointCandlestick"
 
+
+data BidAskCandlestick = BidAskCandlestick
+  { bidaskCandlestickTime     :: ZonedTime
+  , bidaskCandlestickOpenBid  :: Double
+  , bidaskCandlestickOpenAsk  :: Double
+  , bidaskCandlestickHighBid  :: Double
+  , bidaskCandlestickHighAsk  :: Double
+  , bidaskCandlestickLowBid   :: Double
+  , bidaskCandlestickLowAsk   :: Double
+  , bidaskCandlestickCloseBid :: Double
+  , bidaskCandlestickCloseAsk :: Double
+  , bidaskCandlestickVolume   :: Int
+  , bidaskCandlestickComplete :: Bool
+  } deriving (Show, Generic)
+
+instance FromJSON BidAskCandlestick where
+  parseJSON = genericParseJSON $ jsonOpts "bidaskCandlestick"
 
 data CandlesArgs = CandlesArgs
   { candlesCount           :: CandlesCount
   , candlesGranularity     :: Granularity
-  , candlesCandleFormat    :: CandleFormat
   , candlesDailyAlignment  :: Int
   , candlesAlignmentTZ     :: String
   , candlesWeeklyAlignment :: DayOfWeek
   } deriving (Show)
 
 candlesArgs :: CandlesArgs
-candlesArgs = CandlesArgs (Count 500) S5 Midpoint 17 "America/New_York" Friday
+candlesArgs = CandlesArgs (Count 500) S5 17 "America/New_York" Friday
 
 data CandlesCount = Count Int
                   | StartEnd { start :: ZonedTime
                              , end   :: ZonedTime
                              , includeFirst :: Bool
                              }
-                  deriving (Show)
-
-data CandleFormat = Midpoint
-                  | BidAsk
                   deriving (Show)
 
 data DayOfWeek = Monday
@@ -156,13 +183,25 @@ data Granularity = S5 | S10 | S15 | S30
                  | M
                  deriving (Show)
 
--- | Utility type for `candles` function response. Not exported.
-data CandlesResponse = CandlesResponse
-  { _candlesResponseInstrument :: InstrumentText
-  , _candlesResponseGranularity :: String
-  , _candlesResponseCandles :: V.Vector Candlestick
+-- | Utility type for `midpointCandles` function response. Not exported.
+data MidpointCandlesResponse = MidpointCandlesResponse
+  { _midcandlesResponseInstrument  :: InstrumentText
+  , _midcandlesResponseGranularity :: String
+  , _midcandlesResponseCandles     :: V.Vector MidpointCandlestick
   } deriving (Show, Generic)
 
 
-instance FromJSON CandlesResponse where
-  parseJSON = genericParseJSON $ jsonOpts "_candlesResponse"
+instance FromJSON MidpointCandlesResponse where
+  parseJSON = genericParseJSON $ jsonOpts "_midcandlesResponse"
+
+
+-- | Utility type for `bidaskCandles` function response. Not exported.
+data BidAskCandlesResponse = BidAskCandlesResponse
+  { _bidaskResponseInstrument  :: InstrumentText
+  , _bidaskResponseGranularity :: String
+  , _bidaskResponseCandles     :: V.Vector BidAskCandlestick
+  } deriving (Show, Generic)
+
+
+instance FromJSON BidAskCandlesResponse where
+  parseJSON = genericParseJSON $ jsonOpts "_bidaskResponse"
