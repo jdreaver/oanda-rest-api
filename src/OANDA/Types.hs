@@ -11,6 +11,7 @@ module OANDA.Types
        , AccessToken (..)
        , AccountID (..)
        , Side (..)
+       , InstrumentText
        ) where
 
 #if !MIN_VERSION_base(4,8,0)
@@ -67,3 +68,5 @@ readSide :: String -> Side
 readSide "buy"  = Buy
 readSide "sell" = Sell
 readSide _      = error "No parse Side"
+
+type InstrumentText = String

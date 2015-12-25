@@ -10,10 +10,13 @@ module OANDA.Util
        , jsonOpts
        , jsonResponse
        , jsonResponseArray
+       , formatTimeRFC3339
        ) where
 
 import           Data.Aeson (FromJSON)
 import qualified Data.Aeson.TH as TH
+import           Data.Monoid ((<>))
+import           Data.Time
 import           Control.Lens
 import           Data.ByteString (append)
 import           Data.Char (toLower)
@@ -65,3 +68,13 @@ jsonResponseArray :: (FromJSON a) => String -> Options -> String -> IO a
 jsonResponseArray url opts name =
   do body <- jsonResponse url opts
      return $ body Map.! (name :: String)
+
+
+-- | Formats time according to RFC3339 (which is the time format used by
+-- OANDA). Taken from the <https://github.com/HugoDaniel/timerep timerep> library.
+formatTimeRFC3339 :: ZonedTime -> String
+formatTimeRFC3339 zt@(ZonedTime _ z) = formatTime defaultTimeLocale "%FT%T" zt <> printZone
+  where timeZoneStr = timeZoneOffsetString z
+        printZone = if timeZoneStr == timeZoneOffsetString utc
+                    then "Z"
+                    else take 3 timeZoneStr <> ":" <> drop 3 timeZoneStr

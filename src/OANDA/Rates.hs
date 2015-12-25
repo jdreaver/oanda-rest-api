@@ -9,10 +9,13 @@ module OANDA.Rates
        , instrumentsArgs
        , Instrument (..)
        , instruments
+       , Price (..)
+       , prices
        ) where
 
 import           Data.Aeson
 import           Data.Text (Text, pack)
+import           Data.Time
 import qualified Data.Vector as V
 import           GHC.Generics (Generic)
 
@@ -47,3 +50,22 @@ instruments od (AccountID aid) (InstrumentsArgs fs is) = do
                               , ("fields", fs)
                               ]
   jsonResponseArray url opts "instruments"
+
+
+prices :: OandaData -> [InstrumentText] -> Maybe ZonedTime -> IO (V.Vector Price)
+prices od is zt =
+  do let url = baseURL od ++ "/v1/prices"
+         ztOpt = maybe [] (\zt' -> [("since", [pack $ formatTimeRFC3339 zt'])]) zt
+         opts = constructOpts od $ ("instruments", map pack is) : ztOpt
+
+     jsonResponseArray url opts "prices"
+
+data Price = Price
+  { priceInstrument :: InstrumentText
+  , priceTime       :: ZonedTime
+  , priceBid        :: Double
+  , priceAsk        :: Double
+  } deriving (Show, Generic)
+
+instance FromJSON Price where
+  parseJSON = genericParseJSON $ jsonOpts "price"

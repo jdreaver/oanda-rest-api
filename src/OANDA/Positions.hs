@@ -36,10 +36,8 @@ instance FromJSON Position where
   parseJSON = genericParseJSON $ jsonOpts "position"
 
 
-type Instrument = String
-
 -- | Get open position for an account on a given instrument.
-position :: OandaData -> AccountID -> Instrument -> IO Position
+position :: OandaData -> AccountID -> InstrumentText -> IO Position
 position od (AccountID aid) ins =
   do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ ins
          opts = constructOpts od []
