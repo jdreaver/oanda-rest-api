@@ -14,6 +14,7 @@ module OANDA.Positions
        ) where
 
 import           Data.Aeson
+import           Data.Decimal
 import qualified Data.Vector as V
 import           GHC.Generics (Generic)
 
@@ -31,7 +32,7 @@ data Position = Position
   { positionInstrument :: String
   , positionUnits      :: Int
   , positionSide       :: Side
-  , positionAvgPrice   :: Double
+  , positionAvgPrice   :: Decimal
   } deriving (Show, Generic)
 
 instance FromJSON Position where
@@ -55,10 +56,10 @@ closePosition od (AccountID aid) ins =
 
 
 data CloseResponse = CloseResponse
-  { closeResponseIds :: V.Vector Int
-  , closeResponseInstrument  :: InstrumentText
+  { closeResponseIds        :: V.Vector Int
+  , closeResponseInstrument :: InstrumentText
   , closeResponseTotalUnits :: Int
-  , closeResponsePrice  :: Double
+  , closeResponsePrice      :: Decimal
   } deriving (Show, Generic)
 
 

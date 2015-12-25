@@ -24,6 +24,7 @@ module OANDA.Rates
 
 import           Data.Aeson
 import           Data.Char (toLower)
+import           Data.Decimal
 import           Data.Text (Text, pack)
 import           Data.Time
 import qualified Data.Vector as V
@@ -44,8 +45,8 @@ instrumentsArgs = InstrumentsArgs ["displayName", "pip", "maxTradeUnits"] []
 
 data Instrument = Instrument
   { instrumentInstrument    :: String
-  , instrumentPip           :: Maybe String
-  , instrumentMaxTradeUnits :: Maybe Double
+  , instrumentPip           :: Maybe Decimal
+  , instrumentMaxTradeUnits :: Maybe Int
   , instrumentDisplayName   :: Maybe String
   } deriving (Show, Generic)
 
@@ -75,8 +76,8 @@ prices od is zt =
 data Price = Price
   { priceInstrument :: InstrumentText
   , priceTime       :: ZonedTime
-  , priceBid        :: Double
-  , priceAsk        :: Double
+  , priceBid        :: Decimal
+  , priceAsk        :: Decimal
   } deriving (Show, Generic)
 
 instance FromJSON Price where
@@ -119,10 +120,10 @@ candleOpts od i (CandlesArgs c g di atz wa) fmt = (url, opts)
 
 data MidpointCandlestick = MidpointCandlestick
   { midpointCandlestickTime     :: ZonedTime
-  , midpointCandlestickOpenMid  :: Double
-  , midpointCandlestickHighMid  :: Double
-  , midpointCandlestickLowMid   :: Double
-  , midpointCandlestickCloseMid :: Double
+  , midpointCandlestickOpenMid  :: Decimal
+  , midpointCandlestickHighMid  :: Decimal
+  , midpointCandlestickLowMid   :: Decimal
+  , midpointCandlestickCloseMid :: Decimal
   , midpointCandlestickVolume   :: Int
   , midpointCandlestickComplete :: Bool
   } deriving (Show, Generic)
@@ -133,14 +134,14 @@ instance FromJSON MidpointCandlestick where
 
 data BidAskCandlestick = BidAskCandlestick
   { bidaskCandlestickTime     :: ZonedTime
-  , bidaskCandlestickOpenBid  :: Double
-  , bidaskCandlestickOpenAsk  :: Double
-  , bidaskCandlestickHighBid  :: Double
-  , bidaskCandlestickHighAsk  :: Double
-  , bidaskCandlestickLowBid   :: Double
-  , bidaskCandlestickLowAsk   :: Double
-  , bidaskCandlestickCloseBid :: Double
-  , bidaskCandlestickCloseAsk :: Double
+  , bidaskCandlestickOpenBid  :: Decimal
+  , bidaskCandlestickOpenAsk  :: Decimal
+  , bidaskCandlestickHighBid  :: Decimal
+  , bidaskCandlestickHighAsk  :: Decimal
+  , bidaskCandlestickLowBid   :: Decimal
+  , bidaskCandlestickLowAsk   :: Decimal
+  , bidaskCandlestickCloseBid :: Decimal
+  , bidaskCandlestickCloseAsk :: Decimal
   , bidaskCandlestickVolume   :: Int
   , bidaskCandlestickComplete :: Bool
   } deriving (Show, Generic)
