@@ -11,6 +11,7 @@ module OANDA.Util
        , jsonOpts
        , jsonResponse
        , jsonResponseArray
+       , jsonDelete
        , formatTimeRFC3339
        ) where
 
@@ -75,6 +76,10 @@ jsonResponseArray url opts name =
   do body <- jsonResponse url opts
      return $ body Map.! (name :: String)
 
+jsonDelete :: (FromJSON a) => String -> Options -> IO a
+jsonDelete url opts =
+  do r <- asJSON =<< deleteWith opts url
+     return $ r ^. responseBody
 
 -- | Formats time according to RFC3339 (which is the time format used by
 -- OANDA). Taken from the <https://github.com/HugoDaniel/timerep timerep> library.

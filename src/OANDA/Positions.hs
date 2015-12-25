@@ -9,6 +9,8 @@ module OANDA.Positions
        ( Position (..)
        , openPositions
        , position
+       , closePosition
+       , CloseResponse (..)
        ) where
 
 import           Data.Aeson
@@ -42,3 +44,23 @@ position od (AccountID aid) ins =
   do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ ins
          opts = constructOpts od []
      jsonResponse url opts
+
+
+-- | Closes an existing position.
+closePosition :: OandaData -> AccountID -> InstrumentText -> IO CloseResponse
+closePosition od (AccountID aid) ins =
+  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ ins
+         opts = constructOpts od []
+     jsonDelete url opts
+
+
+data CloseResponse = CloseResponse
+  { closeResponseIds :: V.Vector Int
+  , closeResponseInstrument  :: InstrumentText
+  , closeResponseTotalUnits :: Int
+  , closeResponsePrice  :: Double
+  } deriving (Show, Generic)
+
+
+instance FromJSON CloseResponse where
+  parseJSON = genericParseJSON $ jsonOpts "closeResponse"
