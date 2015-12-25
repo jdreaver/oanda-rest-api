@@ -8,6 +8,7 @@
 module OANDA.Positions
        ( Position (..)
        , openPositions
+       , position
        ) where
 
 import           Data.Aeson
@@ -17,6 +18,7 @@ import           GHC.Generics (Generic)
 import           OANDA.Util
 import           OANDA.Types
 
+-- | Get all open positions for an account.
 openPositions :: OandaData -> AccountID -> IO (V.Vector Position)
 openPositions od (AccountID aid) =
   do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions"
@@ -32,3 +34,13 @@ data Position = Position
 
 instance FromJSON Position where
   parseJSON = genericParseJSON $ jsonOpts "position"
+
+
+type Instrument = String
+
+-- | Get open position for an account on a given instrument.
+position :: OandaData -> AccountID -> Instrument -> IO Position
+position od (AccountID aid) ins =
+  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ ins
+         opts = constructOpts od []
+     jsonResponse url opts
