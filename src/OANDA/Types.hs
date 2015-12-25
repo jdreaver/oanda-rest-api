@@ -5,7 +5,8 @@
 -- | Defines types used in the REST API
 
 module OANDA.Types
-       ( APIType (..)
+       ( OandaData (..)
+       , APIType (..)
        , apiEndpoint
        , AccessToken (..)
        , AccountID (..)
@@ -22,9 +23,20 @@ import           Data.ByteString (ByteString)
 import           Data.Text (unpack)
 import           GHC.Generics (Generic)
 
+
+-- | Wraps an `APIType` and an `AccessToken`. Mainly just a convenience wrapper
+-- to make functions have fewer arguments.
+data OandaData = OandaData
+  { apiType     :: APIType
+  , accessToken :: AccessToken
+  } deriving (Show)
+
 -- | The three endpoint types used in the REST API. See the following link for
 -- details: <http://developer.oanda.com/rest-live/development-guide/>
-data APIType = Sandbox | Practice | Live
+data APIType = Sandbox
+             | Practice
+             | Live
+             deriving (Show)
 
 -- | Specifies the endpoints for each `APIType`. These are the base URLs for
 -- each API call.
@@ -35,6 +47,7 @@ apiEndpoint Live     = "https://api-fxtrade.oanda.com"
 
 -- | The token given by OANDA used to access the API
 newtype AccessToken = AccessToken { unAccessToken :: ByteString }
+                      deriving (Show)
 
 
 -- | Integer representing the Account ID of an account

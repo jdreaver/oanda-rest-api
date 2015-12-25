@@ -39,11 +39,11 @@ instance FromJSON Instrument where
   parseJSON = genericParseJSON $ jsonOpts "instrument"
 
 -- | Retrieve a list of instruments from OANDA
-instruments :: APIType -> AccountID -> AccessToken -> InstrumentsArgs -> IO (V.Vector Instrument)
-instruments apit (AccountID aid) t (InstrumentsArgs fs is) = do
-  let url = apiEndpoint apit ++ "/v1/instruments"
-      opts = constructOpts t [ ("accountId", [pack $ show aid])
-                             , ("instruments", is)
-                             , ("fields", fs)
-                             ]
+instruments :: OandaData -> AccountID -> InstrumentsArgs -> IO (V.Vector Instrument)
+instruments od (AccountID aid) (InstrumentsArgs fs is) = do
+  let url = baseURL od ++ "/v1/instruments"
+      opts = constructOpts od [ ("accountId", [pack $ show aid])
+                              , ("instruments", is)
+                              , ("fields", fs)
+                              ]
   jsonResponseArray url opts "instruments"

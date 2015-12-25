@@ -4,6 +4,7 @@
 
 module OANDA.Util
        ( constructOpts
+       , baseURL
        , makeParams
        , commaList
        , jsonOpts
@@ -22,10 +23,16 @@ import           Network.Wreq
 
 import           OANDA.Types
 
+-- | Convenience wrapper around `apiEndpoint`.
+baseURL :: OandaData -> String
+baseURL (OandaData api _) = apiEndpoint api
 
 -- | Create options for Wreq `getWith` using access token and params.
-constructOpts :: AccessToken -> [(Text, [Text])] -> Options
-constructOpts (AccessToken t) ps = defaults & params' & header'
+constructOpts :: OandaData -> [(Text, [Text])] -> Options
+constructOpts (OandaData _ t) = constructOpts' t
+
+constructOpts' :: AccessToken -> [(Text, [Text])] -> Options
+constructOpts' (AccessToken t) ps = defaults & params' & header'
   where params' = makeParams ps
         header' = header "Authorization" .~ ["Bearer " `append` t]
 

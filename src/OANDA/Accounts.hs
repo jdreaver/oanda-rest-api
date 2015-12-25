@@ -31,18 +31,18 @@ instance FromJSON Account where
   parseJSON = genericParseJSON $ jsonOpts "account"
 
 -- | Get all accounts for given access token
-accounts :: APIType -> AccessToken -> IO (V.Vector Account)
-accounts apit t = do
-  let url = apiEndpoint apit ++ "/v1/accounts"
-      opts = constructOpts t []
+accounts :: OandaData -> IO (V.Vector Account)
+accounts od = do
+  let url = baseURL od ++ "/v1/accounts"
+      opts = constructOpts od []
   jsonResponseArray url opts "accounts"
 
 
 -- | Get all account info associated with an account ID.
-accountInfo :: APIType -> AccountID -> AccessToken -> IO AccountInfo
-accountInfo apit (AccountID aid) t =
-  do let url = apiEndpoint apit ++ "/v1/accounts/" ++ show aid
-         opts = constructOpts t []
+accountInfo :: OandaData -> AccountID -> IO AccountInfo
+accountInfo od (AccountID aid) =
+  do let url = baseURL od ++ "/v1/accounts/" ++ show aid
+         opts = constructOpts od []
      jsonResponse url opts
 
 

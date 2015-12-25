@@ -17,10 +17,10 @@ import           GHC.Generics (Generic)
 import           OANDA.Util
 import           OANDA.Types
 
-openPositions :: APIType -> AccountID -> AccessToken -> IO (V.Vector Position)
-openPositions apit (AccountID aid) t =
-  do let url = apiEndpoint apit ++ "/v1/accounts/" ++ show aid ++ "/positions"
-         opts = constructOpts t []
+openPositions :: OandaData -> AccountID -> IO (V.Vector Position)
+openPositions od (AccountID aid) =
+  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions"
+         opts = constructOpts od []
      jsonResponseArray url opts "positions"
 
 data Position = Position
