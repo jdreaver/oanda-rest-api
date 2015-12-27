@@ -43,11 +43,11 @@ import           OANDA.Types
 
 -- | Convenience wrapper around `apiEndpoint`.
 baseURL :: OandaEnv -> String
-baseURL (OandaEnv api _) = apiEndpoint api
+baseURL env = apiEndpoint (apiType env)
 
 -- | Create options for Wreq `getWith` using access token and params.
 constructOpts :: OandaEnv -> [(Text, [Text])] -> Options
-constructOpts (OandaEnv _ t) = constructOpts' t
+constructOpts env = constructOpts' (accessToken env)
 
 constructOpts' :: Maybe AccessToken -> [(Text, [Text])] -> Options
 constructOpts' maybeTok ps = defaults & params' & header'

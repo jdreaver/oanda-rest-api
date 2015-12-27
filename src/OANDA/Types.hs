@@ -5,7 +5,12 @@
 -- | Defines types used in the REST API
 
 module OANDA.Types
-       ( OandaEnv (..)
+       ( OandaEnv
+       , apiType
+       , accessToken
+       , sandboxAuth
+       , practiceAuth
+       , liveAuth
        , APIType (..)
        , apiEndpoint
        , AccessToken (..)
@@ -26,11 +31,25 @@ import           GHC.Generics (Generic)
 
 
 -- | Wraps an `APIType` and an `AccessToken`. Mainly just a convenience wrapper
--- to make functions have fewer arguments.
+-- to make functions have fewer arguments. To instantiate this type, use the
+-- `sandboxAuth`, `practiceAuth`, or `liveAuth` functions.
 data OandaEnv = OandaEnv
   { apiType     :: APIType
   , accessToken :: Maybe AccessToken
   } deriving (Show)
+
+-- | Use the sandbox API.
+sandboxAuth :: OandaEnv
+sandboxAuth = OandaEnv Sandbox Nothing
+
+-- | Use the practice API.
+practiceAuth :: AccessToken -> OandaEnv
+practiceAuth = OandaEnv Practice . Just
+
+-- | Use the live API.
+liveAuth :: AccessToken -> OandaEnv
+liveAuth = OandaEnv Live . Just
+
 
 -- | The three endpoint types used in the REST API. See the following link for
 -- details: <http://developer.oanda.com/rest-live/development-guide/>
