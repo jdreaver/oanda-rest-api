@@ -5,7 +5,7 @@
 -- | Defines types used in the REST API
 
 module OANDA.Types
-       ( OandaData (..)
+       ( OandaEnv (..)
        , APIType (..)
        , apiEndpoint
        , AccessToken (..)
@@ -27,7 +27,7 @@ import           GHC.Generics (Generic)
 
 -- | Wraps an `APIType` and an `AccessToken`. Mainly just a convenience wrapper
 -- to make functions have fewer arguments.
-data OandaData = OandaData
+data OandaEnv = OandaEnv
   { apiType     :: APIType
   , accessToken :: Maybe AccessToken
   } deriving (Show)

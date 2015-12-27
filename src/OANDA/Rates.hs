@@ -60,7 +60,7 @@ instance FromJSON Instrument where
   parseJSON = genericParseJSON $ jsonOpts "instrument"
 
 -- | Retrieve a list of instruments from OANDA
-instruments :: OandaData -> AccountID -> InstrumentsArgs -> IO (V.Vector Instrument)
+instruments :: OandaEnv -> AccountID -> InstrumentsArgs -> IO (V.Vector Instrument)
 instruments od (AccountID aid) (InstrumentsArgs fs is) = do
   let url = baseURL od ++ "/v1/instruments"
       opts = constructOpts od [ ("accountId", [pack $ show aid])
@@ -71,7 +71,7 @@ instruments od (AccountID aid) (InstrumentsArgs fs is) = do
 
 
 -- | Retrieve the current prices for a list of instruments.
-prices :: OandaData -> [InstrumentText] -> Maybe ZonedTime -> IO (V.Vector Price)
+prices :: OandaEnv -> [InstrumentText] -> Maybe ZonedTime -> IO (V.Vector Price)
 prices od is zt =
   do let url = baseURL od ++ "/v1/prices"
          ztOpt = maybe [] (\zt' -> [("since", [pack $ formatTimeRFC3339 zt'])]) zt
@@ -91,7 +91,7 @@ instance FromJSON Price where
 
 
 -- | Retrieve the price history of a single instrument in midpoint candles
-midpointCandles :: OandaData -> InstrumentText -> CandlesArgs ->
+midpointCandles :: OandaEnv -> InstrumentText -> CandlesArgs ->
                    IO (V.Vector MidpointCandlestick)
 midpointCandles od i args =
   do let (url, opts) = candleOpts od i args "midpoint"
@@ -99,7 +99,7 @@ midpointCandles od i args =
      return $ _midcandlesResponseCandles response
 
 -- | Retrieve the price history of a single instrument in bid/ask candles
-bidaskCandles :: OandaData -> InstrumentText -> CandlesArgs ->
+bidaskCandles :: OandaEnv -> InstrumentText -> CandlesArgs ->
                  IO (V.Vector BidAskCandlestick)
 bidaskCandles od i args =
   do let (url, opts) = candleOpts od i args "bidask"
@@ -108,7 +108,7 @@ bidaskCandles od i args =
 
 
 -- | Utility function for both candle history functions
-candleOpts :: OandaData -> InstrumentText -> CandlesArgs -> String -> (String, Options)
+candleOpts :: OandaEnv -> InstrumentText -> CandlesArgs -> String -> (String, Options)
 candleOpts od i (CandlesArgs c g di atz wa) fmt = (url, opts)
   where url   = baseURL od ++ "/v1/candles"
         opts  = constructOpts od $ [ ("instrument", [pack i])

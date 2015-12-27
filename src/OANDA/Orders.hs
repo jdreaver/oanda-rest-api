@@ -21,7 +21,7 @@ import           OANDA.Util
 
 
 -- | Get all open orders for an account.
-openOrders :: OandaData -> AccountID -> IO (V.Vector Order)
+openOrders :: OandaEnv -> AccountID -> IO (V.Vector Order)
 openOrders od (AccountID aid) =
   do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/orders"
          opts = constructOpts od []

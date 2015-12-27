@@ -42,12 +42,12 @@ import           Network.Wreq
 import           OANDA.Types
 
 -- | Convenience wrapper around `apiEndpoint`.
-baseURL :: OandaData -> String
-baseURL (OandaData api _) = apiEndpoint api
+baseURL :: OandaEnv -> String
+baseURL (OandaEnv api _) = apiEndpoint api
 
 -- | Create options for Wreq `getWith` using access token and params.
-constructOpts :: OandaData -> [(Text, [Text])] -> Options
-constructOpts (OandaData _ t) = constructOpts' t
+constructOpts :: OandaEnv -> [(Text, [Text])] -> Options
+constructOpts (OandaEnv _ t) = constructOpts' t
 
 constructOpts' :: Maybe AccessToken -> [(Text, [Text])] -> Options
 constructOpts' maybeTok ps = defaults & params' & header'

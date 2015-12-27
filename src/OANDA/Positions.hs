@@ -22,7 +22,7 @@ import           OANDA.Util
 import           OANDA.Types
 
 -- | Get all open positions for an account.
-openPositions :: OandaData -> AccountID -> IO (V.Vector Position)
+openPositions :: OandaEnv -> AccountID -> IO (V.Vector Position)
 openPositions od (AccountID aid) =
   do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions"
          opts = constructOpts od []
@@ -40,7 +40,7 @@ instance FromJSON Position where
 
 
 -- | Get open position for an account on a given instrument.
-position :: OandaData -> AccountID -> InstrumentText -> IO Position
+position :: OandaEnv -> AccountID -> InstrumentText -> IO Position
 position od (AccountID aid) ins =
   do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ ins
          opts = constructOpts od []
@@ -48,7 +48,7 @@ position od (AccountID aid) ins =
 
 
 -- | Closes an existing position.
-closePosition :: OandaData -> AccountID -> InstrumentText -> IO CloseResponse
+closePosition :: OandaEnv -> AccountID -> InstrumentText -> IO CloseResponse
 closePosition od (AccountID aid) ins =
   do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ ins
          opts = constructOpts od []

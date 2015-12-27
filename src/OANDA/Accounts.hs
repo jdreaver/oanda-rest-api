@@ -32,7 +32,7 @@ instance FromJSON Account where
   parseJSON = genericParseJSON $ jsonOpts "account"
 
 -- | Get all accounts for given access token
-accounts :: OandaData -> IO (V.Vector Account)
+accounts :: OandaEnv -> IO (V.Vector Account)
 accounts od = do
   let url = baseURL od ++ "/v1/accounts"
       opts = constructOpts od []
@@ -40,7 +40,7 @@ accounts od = do
 
 
 -- | Get all account info associated with an account ID.
-accountInfo :: OandaData -> AccountID -> IO AccountInfo
+accountInfo :: OandaEnv -> AccountID -> IO AccountInfo
 accountInfo od (AccountID aid) =
   do let url = baseURL od ++ "/v1/accounts/" ++ show aid
          opts = constructOpts od []
