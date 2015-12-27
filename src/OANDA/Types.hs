@@ -29,7 +29,7 @@ import           GHC.Generics (Generic)
 -- to make functions have fewer arguments.
 data OandaData = OandaData
   { apiType     :: APIType
-  , accessToken :: AccessToken
+  , accessToken :: Maybe AccessToken
   } deriving (Show)
 
 -- | The three endpoint types used in the REST API. See the following link for

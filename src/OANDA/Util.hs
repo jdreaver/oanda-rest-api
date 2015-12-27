@@ -49,10 +49,11 @@ baseURL (OandaData api _) = apiEndpoint api
 constructOpts :: OandaData -> [(Text, [Text])] -> Options
 constructOpts (OandaData _ t) = constructOpts' t
 
-constructOpts' :: AccessToken -> [(Text, [Text])] -> Options
-constructOpts' (AccessToken t) ps = defaults & params' & header'
+constructOpts' :: Maybe AccessToken -> [(Text, [Text])] -> Options
+constructOpts' maybeTok ps = defaults & params' & header'
   where params' = makeParams ps
-        header' = header "Authorization" .~ ["Bearer " `append` t]
+        header' = maybe id makeHeader maybeTok
+        makeHeader (AccessToken t) = header "Authorization" .~ ["Bearer " `append` t]
 
 
 -- | Create a valid list of params for wreq.
