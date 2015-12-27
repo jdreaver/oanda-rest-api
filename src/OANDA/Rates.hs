@@ -44,10 +44,16 @@ instrumentsArgs :: InstrumentsArgs
 instrumentsArgs = InstrumentsArgs ["displayName", "pip", "maxTradeUnits"] []
 
 data Instrument = Instrument
-  { instrumentInstrument    :: String
-  , instrumentPip           :: Maybe Decimal
-  , instrumentMaxTradeUnits :: Maybe Int
-  , instrumentDisplayName   :: Maybe String
+  { instrumentInstrument      :: String
+  , instrumentPip             :: Maybe Decimal
+  , instrumentMaxTradeUnits   :: Maybe Integer
+  , instrumentDisplayName     :: Maybe String
+  , instrumentPrecision       :: Maybe Decimal
+  , instrumentMaxTrailingStop :: Maybe Decimal
+  , instrumentMinTrailingStop :: Maybe Decimal
+  , instrumentMarginRate      :: Maybe Decimal
+  , instrumentHalted          :: Maybe String
+  , instrumentInterestRate    :: Maybe Decimal
   } deriving (Show, Generic)
 
 instance FromJSON Instrument where

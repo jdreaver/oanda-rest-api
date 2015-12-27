@@ -18,7 +18,7 @@ module OANDA.Util
 
 
 #if !MIN_VERSION_base(4,8,0)
-import           Control.Applicative (pure)
+import           Control.Applicative (Applicative, pure)
 import           System.Locale (defaultTimeLocale)
 #endif
 
