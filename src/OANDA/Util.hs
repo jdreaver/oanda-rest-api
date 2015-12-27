@@ -35,7 +35,7 @@ import           Data.Monoid (
 #endif
   (<>))
 import           Data.Scientific
-import           Data.Text (Text, intercalate)
+import           Data.Text (Text, intercalate, unpack)
 import           Data.Time
 import           Network.Wreq
 
@@ -100,6 +100,11 @@ formatTimeRFC3339 zt@(ZonedTime _ z) = formatTime defaultTimeLocale "%FT%T" zt <
 
 
 instance (Integral a) => FromJSON (DecimalRaw a) where
-  parseJSON (Number n) =
-    pure $ Decimal ((*) (-1) $ fromIntegral $ base10Exponent n) (fromIntegral $ coefficient n)
+  parseJSON (Number n) = readDecimalJSON n
+  parseJSON (String s) = readDecimalJSON (read (unpack s))
   parseJSON _          = mempty
+
+
+readDecimalJSON :: (Num i, Applicative f) => Scientific -> f (DecimalRaw i)
+readDecimalJSON n = pure $ Decimal ((*) (-1) $ fromIntegral $ base10Exponent n)
+                                    (fromIntegral $ coefficient n)
