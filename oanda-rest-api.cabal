@@ -21,6 +21,7 @@ library
                      , OANDA.Orders
                      , OANDA.Positions
                      , OANDA.Rates
+                     , OANDA.Transactions
                      , OANDA.Types
   other-modules:       OANDA.Util
   build-depends:       base >= 4.7 && < 5
