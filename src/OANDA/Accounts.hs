@@ -22,11 +22,12 @@ import           OANDA.Types
 
 
 -- | Wraps the JSON response for accounts
-data Account = Account { accountAccountId       :: Int
-                       , accountAccountName     :: String
-                       , accountAccountCurrency :: String
-                       , accountMarginRate      :: Decimal
-                       } deriving (Show, Generic)
+data Account = Account
+  { accountAccountId       :: Int
+  , accountAccountName     :: String
+  , accountAccountCurrency :: String
+  , accountMarginRate      :: Decimal
+  } deriving (Show, Generic)
 
 instance FromJSON Account where
   parseJSON = genericParseJSON $ jsonOpts "account"
