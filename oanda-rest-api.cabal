@@ -21,6 +21,7 @@ library
                      , OANDA.Orders
                      , OANDA.Positions
                      , OANDA.Rates
+                     , OANDA.Trades
                      , OANDA.Transactions
                      , OANDA.Types
   other-modules:       OANDA.Util
