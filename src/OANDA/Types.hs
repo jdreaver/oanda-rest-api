@@ -71,7 +71,8 @@ newtype AccessToken = AccessToken { unAccessToken :: ByteString }
 
 
 -- | Integer representing the Account ID of an account
-newtype AccountID = AccountID { unAccountID :: Int }
+newtype AccountID = AccountID { unAccountID :: Int}
+                    deriving (Show)
 
 -- | Used when reporting a position in the API
 data Side = Buy
