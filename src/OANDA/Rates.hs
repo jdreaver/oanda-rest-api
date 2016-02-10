@@ -75,7 +75,7 @@ prices :: OandaEnv -> [InstrumentText] -> Maybe ZonedTime -> IO (V.Vector Price)
 prices od is zt =
   do let url = baseURL od ++ "/v1/prices"
          ztOpt = maybe [] (\zt' -> [("since", [pack $ formatTimeRFC3339 zt'])]) zt
-         opts = constructOpts od $ ("instruments", map pack is) : ztOpt
+         opts = constructOpts od $ ("instruments", is) : ztOpt
 
      jsonResponseArray url opts "prices"
 
@@ -111,7 +111,7 @@ bidaskCandles od i args =
 candleOpts :: OandaEnv -> InstrumentText -> CandlesArgs -> String -> (String, Options)
 candleOpts od i (CandlesArgs c g di atz wa) fmt = (url, opts)
   where url   = baseURL od ++ "/v1/candles"
-        opts  = constructOpts od $ [ ("instrument", [pack i])
+        opts  = constructOpts od $ [ ("instrument", [i])
                                    , ("granularity", [pack $ show g])
                                    , ("candleFormat", [pack fmt])
                                    , ("dailyAlignment", [pack $ show di])

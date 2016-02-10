@@ -26,7 +26,7 @@ import           Control.Applicative (pure)
 import           Control.Monad (mzero)
 import           Data.Aeson
 import           Data.ByteString (ByteString)
-import           Data.Text (unpack)
+import           Data.Text (Text, unpack)
 import           GHC.Generics (Generic)
 
 
@@ -89,4 +89,4 @@ readSide "buy"  = Buy
 readSide "sell" = Sell
 readSide _      = error "No parse Side"
 
-type InstrumentText = String
+type InstrumentText = Text

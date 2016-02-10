@@ -15,6 +15,7 @@ module OANDA.Positions
 
 import           Data.Aeson
 import           Data.Decimal
+import           Data.Text (unpack)
 import qualified Data.Vector as V
 import           GHC.Generics (Generic)
 
@@ -42,7 +43,7 @@ instance FromJSON Position where
 -- | Get open position for an account on a given instrument.
 position :: OandaEnv -> AccountID -> InstrumentText -> IO Position
 position od (AccountID aid) ins =
-  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ ins
+  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ unpack ins
          opts = constructOpts od []
      jsonResponse url opts
 
@@ -50,7 +51,7 @@ position od (AccountID aid) ins =
 -- | Closes an existing position.
 closePosition :: OandaEnv -> AccountID -> InstrumentText -> IO CloseResponse
 closePosition od (AccountID aid) ins =
-  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ ins
+  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ unpack ins
          opts = constructOpts od []
      jsonDelete url opts
 
