@@ -27,6 +27,7 @@ import           OANDA.Util
 --   , transactionsIds        :: [Integer]
 --   } deriving (Show)
 
+-- | Get a list of transactions for the account.
 transactionHistory :: OandaEnv -> AccountID -> IO (V.Vector Transaction)
 transactionHistory od (AccountID aid) =
   do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/transactions"

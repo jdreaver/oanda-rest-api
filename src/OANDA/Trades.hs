@@ -1,5 +1,9 @@
 {-# LANGUAGE DeriveGeneric #-}
 
+-- | Defines the endpoints listed in the
+-- <http://developer.oanda.com/rest-live/trades/ Trades History> section of the
+-- API.
+
 module OANDA.Trades
        ( Trade (..)
        , openTrades
