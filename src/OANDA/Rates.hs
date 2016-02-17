@@ -52,8 +52,8 @@ data Instrument = Instrument
   , instrumentMaxTrailingStop :: Maybe Decimal
   , instrumentMinTrailingStop :: Maybe Decimal
   , instrumentMarginRate      :: Maybe Decimal
-  , instrumentHalted          :: Maybe String
-  , instrumentInterestRate    :: Maybe Decimal
+  , instrumentHalted          :: Maybe Bool
+  , instrumentInterestRate    :: Maybe Object
   } deriving (Show, Generic)
 
 instance FromJSON Instrument where
