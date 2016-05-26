@@ -1,0 +1,57 @@
+name: oanda-rest-api
+version: "0.1.0.0"
+synopsis: Client to the OANDA REST API
+description: Client to the OANDA REST API
+license: BSD3
+license-file: LICENSE
+author: John David Reaver
+maintainer: johndreaver@gmail.com
+copyright: (c) 2015-2016 John David Reaver
+category: API
+build-type: Simple
+stability: experimental
+extra-source-files:
+  - README.md
+  - CHANGES.md
+  - stack.yaml
+
+github: jdreaver/oanda-rest-api
+
+dependencies:
+  - base >= 4.7 && < 5
+  - aeson >= 0.8.0
+  - bytestring >= 0.10.0
+  - containers >= 0.5.2
+  - Decimal >= 0.4.2
+  - lens >= 4.0
+  - old-locale >= 1.0.0.6
+  - scientific >= 0.3.3.0
+  - text >= 1.2.0
+  - time >= 1.4
+  - vector >= 0.10.0
+  - wreq >= 0.3.0.0
+
+
+library:
+  source-dirs:
+    - src
+  ghc-options: -Wall
+
+tests:
+  tests:
+    main: Spec.hs
+    source-dirs:
+      - src
+      - tests
+    dependencies:
+      - oanda-rest-api
+      - hspec
+      - HUnit
+    ghc-options: -Wall
+  style:
+    main: HLint.hs
+    source-dirs:
+      - tests
+    dependencies:
+      - hlint
+    ghc-options: -Wall

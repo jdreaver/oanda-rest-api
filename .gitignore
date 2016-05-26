@@ -2,3 +2,4 @@
 cabal.sandbox.config
 dist/
 .stack-work/
+oanda-rest-api.cabal
