@@ -19,7 +19,6 @@ module OANDA.Util
 
 #if !MIN_VERSION_base(4,8,0)
 import           Control.Applicative (Applicative, pure)
-import           System.Locale (defaultTimeLocale)
 #endif
 
 import           Control.Lens
@@ -36,8 +35,9 @@ import           Data.Monoid (
   (<>))
 import           Data.Scientific
 import           Data.Text (Text, intercalate, unpack)
-import           Data.Time
+import           Data.Thyme
 import           Network.Wreq
+import           System.Locale (defaultTimeLocale)
 
 import           OANDA.Types
 

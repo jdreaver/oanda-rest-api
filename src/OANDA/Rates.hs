@@ -26,7 +26,8 @@ import           Data.Aeson
 import           Data.Char (toLower)
 import           Data.Decimal
 import           Data.Text (Text, pack)
-import           Data.Time
+import           Data.Thyme
+import           Data.Thyme.Format.Aeson ()
 import qualified Data.Vector as V
 import           GHC.Generics (Generic)
 import           Network.Wreq (Options)

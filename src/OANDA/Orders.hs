@@ -12,7 +12,8 @@ module OANDA.Orders
 
 import           Data.Aeson
 import           Data.Decimal
-import           Data.Time (ZonedTime)
+import           Data.Thyme (ZonedTime)
+import           Data.Thyme.Format.Aeson ()
 import qualified Data.Vector as V
 import           GHC.Generics (Generic)
 

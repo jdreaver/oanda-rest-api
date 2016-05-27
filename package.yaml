@@ -26,7 +26,7 @@ dependencies:
   - old-locale >= 1.0.0.6
   - scientific >= 0.3.3.0
   - text >= 1.2.0
-  - time >= 1.4
+  - thyme
   - vector >= 0.10.0
   - wreq >= 0.3.0.0
 
