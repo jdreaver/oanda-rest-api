@@ -120,11 +120,18 @@ candleOpts od i (CandlesArgs c g di atz wa) fmt = (url, opts)
                                    , ("alignmentTimeZone", [pack atz])
                                    , ("weeklyAlignment", [pack $ show wa])
                                    ] ++ countOpts c
-        countOpts (Count count) = [("count", [pack $ show count])]
+        countOpts (Count c') = [("count", [pack $ show c'])]
         countOpts (StartEnd st ed incf) = [ ("start", [pack $ formatTimeRFC3339 st])
                                           , ("end", [pack $ formatTimeRFC3339 ed])
                                           , ("includeFirst", [pack $ map toLower (show incf)])
                                           ]
+        countOpts (StartCount st c' incf) = [ ("start", [pack $ formatTimeRFC3339 st])
+                                            , ("count", [pack $ show c'])
+                                            , ("includeFirst", [pack $ map toLower (show incf)])
+                                            ]
+        countOpts (EndCount ed c') = [ ("end", [pack $ formatTimeRFC3339 ed])
+                                     , ("count", [pack $ show c'])
+                                     ]
 
 data MidpointCandlestick = MidpointCandlestick
   { midpointCandlestickTime     :: ZonedTime
@@ -169,10 +176,20 @@ candlesArgs :: CandlesArgs
 candlesArgs = CandlesArgs (Count 500) S5 17 "America/New_York" Friday
 
 data CandlesCount = Count Int
-                  | StartEnd { start :: ZonedTime
-                             , end   :: ZonedTime
-                             , includeFirst :: Bool
-                             }
+                  | StartEnd
+                    { start :: ZonedTime
+                    , end :: ZonedTime
+                    , includeFirst :: Bool
+                    }
+                  | StartCount
+                    { start :: ZonedTime
+                    , count :: Int
+                    , includeFirst :: Bool
+                    }
+                  | EndCount
+                    { end :: ZonedTime
+                    , count :: Int
+                    }
                   deriving (Show)
 
 data DayOfWeek = Monday
