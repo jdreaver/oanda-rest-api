@@ -20,6 +20,7 @@ module OANDA.Rates
        , CandlesCount (..)
        , DayOfWeek (..)
        , Granularity (..)
+       , granularityToDiffTime
        ) where
 
 import           Data.Aeson
@@ -190,6 +191,34 @@ data Granularity = S5 | S10 | S15 | S30
                  | W
                  | M
                  deriving (Show)
+
+-- | Utility function to convert Granularity to NominalDiffTime. __NOTE__: The
+-- conversion from month to NominalDiffTime is not correct in general; we just
+-- assume 31 days in a month, which is obviously false for 5 months of the
+-- year.
+granularityToDiffTime :: Granularity -> NominalDiffTime
+granularityToDiffTime S5 = fromSeconds' 5
+granularityToDiffTime S10 = fromSeconds' 10
+granularityToDiffTime S15 = fromSeconds' 15
+granularityToDiffTime S30 = fromSeconds' 30
+granularityToDiffTime M1 = fromSeconds' $ 1 * 60
+granularityToDiffTime M2 = fromSeconds' $ 2 * 60
+granularityToDiffTime M3 = fromSeconds' $ 3 * 60
+granularityToDiffTime M4 = fromSeconds' $ 4 * 60
+granularityToDiffTime M5 = fromSeconds' $ 5 * 60
+granularityToDiffTime M10 = fromSeconds' $ 10 * 60
+granularityToDiffTime M15 = fromSeconds' $ 15 * 60
+granularityToDiffTime M30 = fromSeconds' $ 30 * 60
+granularityToDiffTime H1 = fromSeconds' $ 1 * 60 * 60
+granularityToDiffTime H2 = fromSeconds' $ 2 * 60 * 60
+granularityToDiffTime H3 = fromSeconds' $ 3 * 60 * 60
+granularityToDiffTime H4 = fromSeconds' $ 4 * 60 * 60
+granularityToDiffTime H6 = fromSeconds' $ 6 * 60 * 60
+granularityToDiffTime H8 = fromSeconds' $ 8 * 60 * 60
+granularityToDiffTime H12 = fromSeconds' $ 12 * 60 * 60
+granularityToDiffTime D = fromSeconds' $ 1 * 60 * 60 * 24
+granularityToDiffTime W = fromSeconds' $ 7 * 60 * 60 * 24
+granularityToDiffTime M = fromSeconds' $ 31 * 60 * 60 * 24
 
 -- | Utility type for `midpointCandles` function response. Not exported.
 data MidpointCandlesResponse = MidpointCandlesResponse
