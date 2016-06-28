@@ -7,6 +7,9 @@
   `NominalDiffTime`.
 - Fixed not being able to use a start/end time in conjunction with a count for
   the candlestick endpoints.
+- Use true optional arguments using `Maybe`. This fixes some endpoints breaking
+  when empty lists were passed, and also makes it so we don't have to hard-code
+  defaults.
 
 # 0.1.0.0
 

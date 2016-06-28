@@ -38,12 +38,12 @@ import           OANDA.Types
 
 
 data InstrumentsArgs = InstrumentsArgs
-  { instrumentsFields      :: [Text]
-  , instrumentsInstruments :: [Text]
+  { instrumentsFields      :: Maybe [Text]
+  , instrumentsInstruments :: Maybe [Text]
   } deriving (Show)
 
 instrumentsArgs :: InstrumentsArgs
-instrumentsArgs = InstrumentsArgs ["displayName", "pip", "maxTradeUnits"] []
+instrumentsArgs = InstrumentsArgs Nothing Nothing
 
 data Instrument = Instrument
   { instrumentInstrument      :: String
@@ -65,7 +65,7 @@ instance FromJSON Instrument where
 instruments :: OandaEnv -> AccountID -> InstrumentsArgs -> IO (V.Vector Instrument)
 instruments od (AccountID aid) (InstrumentsArgs fs is) = do
   let url = baseURL od ++ "/v1/instruments"
-      opts = constructOpts od [ ("accountId", [pack $ show aid])
+      opts = constructOpts od [ ("accountId", Just [pack $ show aid])
                               , ("instruments", is)
                               , ("fields", fs)
                               ]
@@ -76,8 +76,8 @@ instruments od (AccountID aid) (InstrumentsArgs fs is) = do
 prices :: OandaEnv -> [InstrumentText] -> Maybe ZonedTime -> IO (V.Vector Price)
 prices od is zt =
   do let url = baseURL od ++ "/v1/prices"
-         ztOpt = maybe [] (\zt' -> [("since", [pack $ formatTimeRFC3339 zt'])]) zt
-         opts = constructOpts od $ ("instruments", is) : ztOpt
+         ztOpt = maybe [] (\zt' -> [("since", Just [pack $ formatTimeRFC3339 zt'])]) zt
+         opts = constructOpts od $ ("instruments", Just is) : ztOpt
 
      jsonResponseArray url opts "prices"
 
@@ -113,24 +113,24 @@ bidaskCandles od i args =
 candleOpts :: OandaEnv -> InstrumentText -> CandlesArgs -> String -> (String, Options)
 candleOpts od i (CandlesArgs c g di atz wa) fmt = (url, opts)
   where url   = baseURL od ++ "/v1/candles"
-        opts  = constructOpts od $ [ ("instrument", [i])
-                                   , ("granularity", [pack $ show g])
-                                   , ("candleFormat", [pack fmt])
-                                   , ("dailyAlignment", [pack $ show di])
-                                   , ("alignmentTimeZone", [pack atz])
-                                   , ("weeklyAlignment", [pack $ show wa])
-                                   ] ++ countOpts c
-        countOpts (Count c') = [("count", [pack $ show c'])]
-        countOpts (StartEnd st ed incf) = [ ("start", [pack $ formatTimeRFC3339 st])
-                                          , ("end", [pack $ formatTimeRFC3339 ed])
-                                          , ("includeFirst", [pack $ map toLower (show incf)])
+        opts  = constructOpts od $ [ ("instrument", Just [i])
+                                   , ("granularity", (:[]) . pack . show <$> g)
+                                   , ("candleFormat", Just [pack fmt])
+                                   , ("dailyAlignment", (:[]) . pack . show <$> di)
+                                   , ("alignmentTimeZone", (:[]) . pack <$> atz)
+                                   , ("weeklyAlignment", (:[]) . pack . show <$> wa)
+                                   ] ++ maybe [] countOpts c
+        countOpts (Count c') = [("count", Just [pack $ show c'])]
+        countOpts (StartEnd st ed incf) = [ ("start", Just [pack $ formatTimeRFC3339 st])
+                                          , ("end", Just [pack $ formatTimeRFC3339 ed])
+                                          , ("includeFirst", Just [pack $ map toLower (show incf)])
                                           ]
-        countOpts (StartCount st c' incf) = [ ("start", [pack $ formatTimeRFC3339 st])
-                                            , ("count", [pack $ show c'])
-                                            , ("includeFirst", [pack $ map toLower (show incf)])
+        countOpts (StartCount st c' incf) = [ ("start", Just [pack $ formatTimeRFC3339 st])
+                                            , ("count", Just [pack $ show c'])
+                                            , ("includeFirst", Just [pack $ map toLower (show incf)])
                                             ]
-        countOpts (EndCount ed c') = [ ("end", [pack $ formatTimeRFC3339 ed])
-                                     , ("count", [pack $ show c'])
+        countOpts (EndCount ed c') = [ ("end", Just [pack $ formatTimeRFC3339 ed])
+                                     , ("count", Just [pack $ show c'])
                                      ]
 
 data MidpointCandlestick = MidpointCandlestick
@@ -165,15 +165,15 @@ instance FromJSON BidAskCandlestick where
   parseJSON = genericParseJSON $ jsonOpts "bidaskCandlestick"
 
 data CandlesArgs = CandlesArgs
-  { candlesCount           :: CandlesCount
-  , candlesGranularity     :: Granularity
-  , candlesDailyAlignment  :: Int
-  , candlesAlignmentTZ     :: String
-  , candlesWeeklyAlignment :: DayOfWeek
+  { candlesCount           :: Maybe CandlesCount
+  , candlesGranularity     :: Maybe Granularity
+  , candlesDailyAlignment  :: Maybe Int
+  , candlesAlignmentTZ     :: Maybe String
+  , candlesWeeklyAlignment :: Maybe DayOfWeek
   } deriving (Show)
 
 candlesArgs :: CandlesArgs
-candlesArgs = CandlesArgs (Count 500) S5 17 "America/New_York" Friday
+candlesArgs = CandlesArgs Nothing Nothing Nothing Nothing Nothing
 
 data CandlesCount = Count Int
                   | StartEnd

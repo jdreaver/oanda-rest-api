@@ -28,6 +28,7 @@ import           Data.ByteString (append)
 import           Data.Char (toLower)
 import           Data.Decimal
 import qualified Data.Map as Map
+import           Data.Maybe (catMaybes)
 import           Data.Monoid (
 #if !MIN_VERSION_base(4,8,0)
   mempty,
@@ -46,10 +47,10 @@ baseURL :: OandaEnv -> String
 baseURL env = apiEndpoint (apiType env)
 
 -- | Create options for Wreq `getWith` using access token and params.
-constructOpts :: OandaEnv -> [(Text, [Text])] -> Options
+constructOpts :: OandaEnv -> [(Text, Maybe [Text])] -> Options
 constructOpts env = constructOpts' (accessToken env)
 
-constructOpts' :: Maybe AccessToken -> [(Text, [Text])] -> Options
+constructOpts' :: Maybe AccessToken -> [(Text, Maybe [Text])] -> Options
 constructOpts' maybeTok ps = defaults & params' & header'
   where params' = makeParams ps
         header' = maybe id makeHeader maybeTok
@@ -57,9 +58,11 @@ constructOpts' maybeTok ps = defaults & params' & header'
 
 
 -- | Create a valid list of params for wreq.
-makeParams :: [(Text, [Text])] -> Options -> Options
+makeParams :: [(Text, Maybe [Text])] -> Options -> Options
 makeParams xs = params .~ params'
-  where params' = [(name, commaList p) | (name, p) <- xs]
+  where paramToMaybe (name, Just xs') = Just (name, commaList xs')
+        paramToMaybe (_, Nothing) = Nothing
+        params' = catMaybes $ fmap paramToMaybe xs
 
 
 -- | Convert a Maybe [Text] item into empty text or comma-separated text.
