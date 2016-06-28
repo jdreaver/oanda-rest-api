@@ -1,4 +1,4 @@
-# 0.2.0 (unreleased)
+# 0.2.0.0 (unreleased)
 
 - Use thyme instead of time. Thyme uses a much more efficient representation of
   time stamps. Note that thyme has a module called Data.Thyme.Time that
