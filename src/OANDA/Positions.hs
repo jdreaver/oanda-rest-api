@@ -6,22 +6,16 @@
 -- API.
 
 module OANDA.Positions
-       ( Position (..)
-       , openPositions
-       , position
-       , closePosition
-       , CloseResponse (..)
-       ) where
+  ( Position (..)
+  , openPositions
+  , position
+  , closePosition
+  , CloseResponse (..)
+  ) where
 
-import           Data.Aeson
-import           Data.Decimal
-import           Data.Text (unpack)
-import qualified Data.Text as T
 import qualified Data.Vector as V
-import           GHC.Generics (Generic)
 
-import           OANDA.Util
-import           OANDA.Types
+import OANDA.Internal
 
 -- | Get all open positions for an account.
 openPositions :: OandaEnv -> AccountID -> IO (V.Vector Position)
@@ -31,7 +25,7 @@ openPositions od (AccountID aid) =
      jsonResponseArray url opts "positions"
 
 data Position = Position
-  { positionInstrument :: T.Text
+  { positionInstrument :: Text
   , positionUnits      :: Int
   , positionSide       :: Side
   , positionAvgPrice   :: Decimal

@@ -6,27 +6,21 @@
 -- API.
 
 module OANDA.Accounts
-       ( Account (..)
-       , accounts
-       , AccountInfo (..)
-       , accountInfo
-       ) where
+  ( Account (..)
+  , accounts
+  , AccountInfo (..)
+  , accountInfo
+  ) where
 
-import           Data.Aeson
-import           Data.Decimal
-import qualified Data.Text as T
 import qualified Data.Vector as V
-import           GHC.Generics (Generic)
 
-import           OANDA.Util
-import           OANDA.Types
-
+import OANDA.Internal
 
 -- | Wraps the JSON response for accounts
 data Account = Account
   { accountAccountId       :: Int
-  , accountAccountName     :: T.Text
-  , accountAccountCurrency :: T.Text
+  , accountAccountName     :: Text
+  , accountAccountCurrency :: Text
   , accountMarginRate      :: Decimal
   } deriving (Show, Generic)
 
@@ -51,7 +45,7 @@ accountInfo od (AccountID aid) =
 
 data AccountInfo = AccountInfo
   { accountInfoAccountId       :: Integer
-  , accountInfoAccountName     :: T.Text
+  , accountInfoAccountName     :: Text
   , accountInfoBalance         :: Decimal
   , accountInfoUnrealizedPl    :: Decimal
   , accountInfoRealizedPl      :: Decimal
@@ -60,7 +54,7 @@ data AccountInfo = AccountInfo
   , accountInfoOpenTrades      :: Integer
   , accountInfoOpenOrders      :: Integer
   , accountInfoMarginRate      :: Decimal
-  , accountInfoAccountCurrency :: T.Text
+  , accountInfoAccountCurrency :: Text
   } deriving (Show, Generic)
 
 instance FromJSON AccountInfo where

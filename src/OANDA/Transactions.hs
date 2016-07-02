@@ -6,19 +6,13 @@
 -- History> section of the API.
 
 module OANDA.Transactions
-       ( Transaction (..)
-       , transactionHistory
-       ) where
+  ( Transaction (..)
+  , transactionHistory
+  ) where
 
-import           Data.Aeson
-import           Data.Decimal
-import           Data.Thyme (ZonedTime)
-import           Data.Thyme.Format.Aeson ()
 import qualified Data.Vector as V
-import           GHC.Generics (Generic)
 
-import           OANDA.Types
-import           OANDA.Util
+import OANDA.Internal
 
 -- data TransactionArgs = TransactionArgs
 --   { transactionsMaxID      :: Maybe Integer

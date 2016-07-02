@@ -4,7 +4,7 @@
 
 -- | Defines types used in the REST API
 
-module OANDA.Types
+module OANDA.Internal.Types
        ( OandaEnv
        , apiType
        , accessToken
@@ -12,23 +12,14 @@ module OANDA.Types
        , practiceAuth
        , liveAuth
        , APIType (..)
-       , apiEndpoint
        , AccessToken (..)
        , AccountID (..)
        , Side (..)
        , InstrumentText
        ) where
 
-#if !MIN_VERSION_base(4,8,0)
-import           Control.Applicative (pure)
-#endif
-
-import           Control.Monad (mzero)
-import           Data.Aeson
-import           Data.ByteString (ByteString)
-import           Data.Text (Text, unpack)
-import           GHC.Generics (Generic)
-
+import qualified Data.ByteString as BS
+import OANDA.Internal.Import
 
 -- | Wraps an `APIType` and an `AccessToken`. Mainly just a convenience wrapper
 -- to make functions have fewer arguments. To instantiate this type, use the
@@ -58,15 +49,8 @@ data APIType = Sandbox
              | Live
              deriving (Show)
 
--- | Specifies the endpoints for each `APIType`. These are the base URLs for
--- each API call.
-apiEndpoint :: APIType -> String
-apiEndpoint Sandbox  = "http://api-sandbox.oanda.com"
-apiEndpoint Practice = "https://api-fxpractice.oanda.com"
-apiEndpoint Live     = "https://api-fxtrade.oanda.com"
-
 -- | The token given by OANDA used to access the API
-newtype AccessToken = AccessToken { unAccessToken :: ByteString }
+newtype AccessToken = AccessToken { unAccessToken :: BS.ByteString }
                       deriving (Show)
 
 

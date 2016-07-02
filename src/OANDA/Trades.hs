@@ -5,27 +5,20 @@
 -- API.
 
 module OANDA.Trades
-       ( Trade (..)
-       , openTrades
-       , tradeInfo
-       ) where
+  ( Trade (..)
+  , openTrades
+  , tradeInfo
+  ) where
 
-import           Data.Aeson
-import           Data.Decimal
-import qualified Data.Text as T
-import           Data.Thyme (ZonedTime)
-import           Data.Thyme.Format.Aeson ()
 import qualified Data.Vector as V
-import           GHC.Generics (Generic)
 
-import           OANDA.Types
-import           OANDA.Util
+import OANDA.Internal
 
 data Trade = Trade
   { tradeId             :: !Int
   , tradeUnits          :: !Int
   , tradeSide           :: !Side
-  , tradeInstrument     :: !T.Text
+  , tradeInstrument     :: !Text
   , tradeTime           :: !ZonedTime
   , tradePrice          :: !Decimal
   , tradeTakeProfit     :: !Decimal

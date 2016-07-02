@@ -5,22 +5,13 @@
 
 
 module OANDA.Orders
-       ( openOrders
-       , Order (..)
-       ) where
+  ( openOrders
+  , Order (..)
+  ) where
 
-
-import           Data.Aeson
-import           Data.Decimal
-import qualified Data.Text as T
-import           Data.Thyme (ZonedTime)
-import           Data.Thyme.Format.Aeson ()
 import qualified Data.Vector as V
-import           GHC.Generics (Generic)
 
-import           OANDA.Types
-import           OANDA.Util
-
+import OANDA.Internal
 
 -- | Get all open orders for an account.
 openOrders :: OandaEnv -> AccountID -> IO (V.Vector Order)
@@ -35,7 +26,7 @@ data Order = Order
   , orderInstrument   :: InstrumentText
   , orderUnits        :: Integer
   , orderSide         :: Side
-  , orderType         :: T.Text -- "marketIfTouched",
+  , orderType         :: Text -- "marketIfTouched",
   , orderTime         :: ZonedTime
   , orderPrice        :: Decimal
   , orderTakeProfit   :: Decimal

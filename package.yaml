@@ -34,6 +34,11 @@ dependencies:
 library:
   source-dirs:
     - src
+  other-modules:
+    - OANDA.Internal
+    - OANDA.Internal.Import
+    - OANDA.Internal.Request
+    - OANDA.Internal.Types
   ghc-options: -Wall
 
 tests:

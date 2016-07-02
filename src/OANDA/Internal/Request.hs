@@ -1,50 +1,36 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE OverloadedStrings #-}
+
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
--- | Utility functions.
+-- | Internal module for dealing with requests via wreq
 
-module OANDA.Util
-       ( constructOpts
-       , baseURL
-       , makeParams
-       , commaList
-       , jsonOpts
-       , jsonResponse
-       , jsonResponseArray
-       , jsonDelete
-       , formatTimeRFC3339
-       ) where
+module OANDA.Internal.Request
+  ( constructOpts
+  , baseURL
+  , makeParams
+  , commaList
+  , jsonOpts
+  , jsonResponse
+  , jsonResponseArray
+  , jsonDelete
+  , formatTimeRFC3339
+  ) where
 
-
-#if !MIN_VERSION_base(4,8,0)
-import           Control.Applicative (Applicative, pure)
-#endif
-
-import           Control.Lens
-import           Data.Aeson
 import qualified Data.Aeson.TH as TH
-import           Data.ByteString (append)
-import           Data.Char (toLower)
-import           Data.Decimal
+import qualified Data.ByteString as BS
 import qualified Data.Map as Map
-import           Data.Maybe (catMaybes)
-import           Data.Monoid (
-#if !MIN_VERSION_base(4,8,0)
-  mempty,
-#endif
-  (<>))
-import           Data.Scientific
-import           Data.Text (Text, intercalate, unpack)
-import           Data.Thyme
-import           Network.Wreq
-import           System.Locale (defaultTimeLocale)
 
-import           OANDA.Types
+import OANDA.Internal.Import
+import OANDA.Internal.Types
 
--- | Convenience wrapper around `apiEndpoint`.
+
+-- | Specifies the endpoints for each `APIType`. These are the base URLs for
+-- each API call.
 baseURL :: OandaEnv -> String
 baseURL env = apiEndpoint (apiType env)
+  where apiEndpoint Sandbox  = "http://api-sandbox.oanda.com"
+        apiEndpoint Practice = "https://api-fxpractice.oanda.com"
+        apiEndpoint Live     = "https://api-fxtrade.oanda.com"
 
 -- | Create options for Wreq `getWith` using access token and params.
 constructOpts :: OandaEnv -> [(Text, Maybe [Text])] -> Options
@@ -54,7 +40,7 @@ constructOpts' :: Maybe AccessToken -> [(Text, Maybe [Text])] -> Options
 constructOpts' maybeTok ps = defaults & params' & header'
   where params' = makeParams ps
         header' = maybe id makeHeader maybeTok
-        makeHeader (AccessToken t) = header "Authorization" .~ ["Bearer " `append` t]
+        makeHeader (AccessToken t) = header "Authorization" .~ ["Bearer " `BS.append` t]
 
 
 -- | Create a valid list of params for wreq.

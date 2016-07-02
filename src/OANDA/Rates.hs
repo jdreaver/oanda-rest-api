@@ -5,52 +5,42 @@
 -- <http://developer.oanda.com/rest-live/rates/ Rates> section of the API.
 
 module OANDA.Rates
-       ( InstrumentsArgs (..)
-       , instrumentsArgs
-       , Instrument (..)
-       , instruments
-       , Price (..)
-       , prices
-       , MidpointCandlestick (..)
-       , midpointCandles
-       , BidAskCandlestick (..)
-       , bidaskCandles
-       , CandlesArgs (..)
-       , candlesArgs
-       , CandlesCount (..)
-       , DayOfWeek (..)
-       , Granularity (..)
-       , granularityToDiffTime
-       ) where
+  ( InstrumentsArgs (..)
+  , instrumentsArgs
+  , Instrument (..)
+  , instruments
+  , Price (..)
+  , prices
+  , MidpointCandlestick (..)
+  , midpointCandles
+  , BidAskCandlestick (..)
+  , bidaskCandles
+  , CandlesArgs (..)
+  , candlesArgs
+  , CandlesCount (..)
+  , DayOfWeek (..)
+  , Granularity (..)
+  , granularityToDiffTime
+  ) where
 
-import           Data.Aeson
-import           Data.Char (toLower)
-import           Data.Decimal
-import           Data.Text (pack)
-import qualified Data.Text as T
-import           Data.Thyme
-import           Data.Thyme.Format.Aeson ()
 import qualified Data.Vector as V
-import           GHC.Generics (Generic)
-import           Network.Wreq (Options)
 
-import           OANDA.Util
-import           OANDA.Types
+import OANDA.Internal
 
 
 data InstrumentsArgs = InstrumentsArgs
-  { instrumentsFields      :: Maybe [T.Text]
-  , instrumentsInstruments :: Maybe [T.Text]
+  { instrumentsFields      :: Maybe [Text]
+  , instrumentsInstruments :: Maybe [Text]
   } deriving (Show)
 
 instrumentsArgs :: InstrumentsArgs
 instrumentsArgs = InstrumentsArgs Nothing Nothing
 
 data Instrument = Instrument
-  { instrumentInstrument      :: T.Text
+  { instrumentInstrument      :: Text
   , instrumentPip             :: Maybe Decimal
   , instrumentMaxTradeUnits   :: Maybe Integer
-  , instrumentDisplayName     :: Maybe T.Text
+  , instrumentDisplayName     :: Maybe Text
   , instrumentPrecision       :: Maybe Decimal
   , instrumentMaxTrailingStop :: Maybe Decimal
   , instrumentMinTrailingStop :: Maybe Decimal
@@ -169,7 +159,7 @@ data CandlesArgs = CandlesArgs
   { candlesCount           :: Maybe CandlesCount
   , candlesGranularity     :: Maybe Granularity
   , candlesDailyAlignment  :: Maybe Int
-  , candlesAlignmentTZ     :: Maybe T.Text
+  , candlesAlignmentTZ     :: Maybe Text
   , candlesWeeklyAlignment :: Maybe DayOfWeek
   } deriving (Show)
 
@@ -241,7 +231,7 @@ granularityToDiffTime M = fromSeconds' $ 31 * 60 * 60 * 24
 -- | Utility type for `midpointCandles` function response. Not exported.
 data MidpointCandlesResponse = MidpointCandlesResponse
   { _midcandlesResponseInstrument  :: InstrumentText
-  , _midcandlesResponseGranularity :: T.Text
+  , _midcandlesResponseGranularity :: Text
   , _midcandlesResponseCandles     :: V.Vector MidpointCandlestick
   } deriving (Show, Generic)
 
@@ -253,7 +243,7 @@ instance FromJSON MidpointCandlesResponse where
 -- | Utility type for `bidaskCandles` function response. Not exported.
 data BidAskCandlesResponse = BidAskCandlesResponse
   { _bidaskResponseInstrument  :: InstrumentText
-  , _bidaskResponseGranularity :: T.Text
+  , _bidaskResponseGranularity :: Text
   , _bidaskResponseCandles     :: V.Vector BidAskCandlestick
   } deriving (Show, Generic)
 
