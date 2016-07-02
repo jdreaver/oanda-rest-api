@@ -26,7 +26,8 @@ module OANDA.Rates
 import           Data.Aeson
 import           Data.Char (toLower)
 import           Data.Decimal
-import           Data.Text (Text, pack)
+import           Data.Text (pack)
+import qualified Data.Text as T
 import           Data.Thyme
 import           Data.Thyme.Format.Aeson ()
 import qualified Data.Vector as V
@@ -38,18 +39,18 @@ import           OANDA.Types
 
 
 data InstrumentsArgs = InstrumentsArgs
-  { instrumentsFields      :: Maybe [Text]
-  , instrumentsInstruments :: Maybe [Text]
+  { instrumentsFields      :: Maybe [T.Text]
+  , instrumentsInstruments :: Maybe [T.Text]
   } deriving (Show)
 
 instrumentsArgs :: InstrumentsArgs
 instrumentsArgs = InstrumentsArgs Nothing Nothing
 
 data Instrument = Instrument
-  { instrumentInstrument      :: String
+  { instrumentInstrument      :: T.Text
   , instrumentPip             :: Maybe Decimal
   , instrumentMaxTradeUnits   :: Maybe Integer
-  , instrumentDisplayName     :: Maybe String
+  , instrumentDisplayName     :: Maybe T.Text
   , instrumentPrecision       :: Maybe Decimal
   , instrumentMaxTrailingStop :: Maybe Decimal
   , instrumentMinTrailingStop :: Maybe Decimal
@@ -117,7 +118,7 @@ candleOpts od i (CandlesArgs c g di atz wa) fmt = (url, opts)
                                    , ("granularity", (:[]) . pack . show <$> g)
                                    , ("candleFormat", Just [pack fmt])
                                    , ("dailyAlignment", (:[]) . pack . show <$> di)
-                                   , ("alignmentTimeZone", (:[]) . pack <$> atz)
+                                   , ("alignmentTimeZone", (:[]) <$> atz)
                                    , ("weeklyAlignment", (:[]) . pack . show <$> wa)
                                    ] ++ maybe [] countOpts c
         countOpts (Count c') = [("count", Just [pack $ show c'])]
@@ -168,7 +169,7 @@ data CandlesArgs = CandlesArgs
   { candlesCount           :: Maybe CandlesCount
   , candlesGranularity     :: Maybe Granularity
   , candlesDailyAlignment  :: Maybe Int
-  , candlesAlignmentTZ     :: Maybe String
+  , candlesAlignmentTZ     :: Maybe T.Text
   , candlesWeeklyAlignment :: Maybe DayOfWeek
   } deriving (Show)
 
@@ -240,7 +241,7 @@ granularityToDiffTime M = fromSeconds' $ 31 * 60 * 60 * 24
 -- | Utility type for `midpointCandles` function response. Not exported.
 data MidpointCandlesResponse = MidpointCandlesResponse
   { _midcandlesResponseInstrument  :: InstrumentText
-  , _midcandlesResponseGranularity :: String
+  , _midcandlesResponseGranularity :: T.Text
   , _midcandlesResponseCandles     :: V.Vector MidpointCandlestick
   } deriving (Show, Generic)
 
@@ -252,7 +253,7 @@ instance FromJSON MidpointCandlesResponse where
 -- | Utility type for `bidaskCandles` function response. Not exported.
 data BidAskCandlesResponse = BidAskCandlesResponse
   { _bidaskResponseInstrument  :: InstrumentText
-  , _bidaskResponseGranularity :: String
+  , _bidaskResponseGranularity :: T.Text
   , _bidaskResponseCandles     :: V.Vector BidAskCandlestick
   } deriving (Show, Generic)
 

@@ -12,6 +12,7 @@ module OANDA.Trades
 
 import           Data.Aeson
 import           Data.Decimal
+import qualified Data.Text as T
 import           Data.Thyme (ZonedTime)
 import           Data.Thyme.Format.Aeson ()
 import qualified Data.Vector as V
@@ -24,7 +25,7 @@ data Trade = Trade
   { tradeId             :: !Int
   , tradeUnits          :: !Int
   , tradeSide           :: !Side
-  , tradeInstrument     :: !String
+  , tradeInstrument     :: !T.Text
   , tradeTime           :: !ZonedTime
   , tradePrice          :: !Decimal
   , tradeTakeProfit     :: !Decimal

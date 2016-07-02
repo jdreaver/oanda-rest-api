@@ -12,6 +12,7 @@ module OANDA.Orders
 
 import           Data.Aeson
 import           Data.Decimal
+import qualified Data.Text as T
 import           Data.Thyme (ZonedTime)
 import           Data.Thyme.Format.Aeson ()
 import qualified Data.Vector as V
@@ -34,7 +35,7 @@ data Order = Order
   , orderInstrument   :: InstrumentText
   , orderUnits        :: Integer
   , orderSide         :: Side
-  , orderType         :: String -- "marketIfTouched",
+  , orderType         :: T.Text -- "marketIfTouched",
   , orderTime         :: ZonedTime
   , orderPrice        :: Decimal
   , orderTakeProfit   :: Decimal

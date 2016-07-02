@@ -1,4 +1,9 @@
-# 0.2.0.0 (unreleased)
+# 0.3.0.0
+
+- Prefer `Text` instead of `String` for arguments. We still use `String` in
+  endpoints since that is what `wreq` uses.
+
+# 0.2.0.0
 
 - Use thyme instead of time. Thyme uses a much more efficient representation of
   time stamps. Note that thyme has a module called Data.Thyme.Time that

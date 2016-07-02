@@ -14,6 +14,7 @@ module OANDA.Accounts
 
 import           Data.Aeson
 import           Data.Decimal
+import qualified Data.Text as T
 import qualified Data.Vector as V
 import           GHC.Generics (Generic)
 
@@ -24,8 +25,8 @@ import           OANDA.Types
 -- | Wraps the JSON response for accounts
 data Account = Account
   { accountAccountId       :: Int
-  , accountAccountName     :: String
-  , accountAccountCurrency :: String
+  , accountAccountName     :: T.Text
+  , accountAccountCurrency :: T.Text
   , accountMarginRate      :: Decimal
   } deriving (Show, Generic)
 
@@ -50,7 +51,7 @@ accountInfo od (AccountID aid) =
 
 data AccountInfo = AccountInfo
   { accountInfoAccountId       :: Integer
-  , accountInfoAccountName     :: String
+  , accountInfoAccountName     :: T.Text
   , accountInfoBalance         :: Decimal
   , accountInfoUnrealizedPl    :: Decimal
   , accountInfoRealizedPl      :: Decimal
@@ -59,7 +60,7 @@ data AccountInfo = AccountInfo
   , accountInfoOpenTrades      :: Integer
   , accountInfoOpenOrders      :: Integer
   , accountInfoMarginRate      :: Decimal
-  , accountInfoAccountCurrency :: String
+  , accountInfoAccountCurrency :: T.Text
   } deriving (Show, Generic)
 
 instance FromJSON AccountInfo where

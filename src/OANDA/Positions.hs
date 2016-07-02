@@ -16,6 +16,7 @@ module OANDA.Positions
 import           Data.Aeson
 import           Data.Decimal
 import           Data.Text (unpack)
+import qualified Data.Text as T
 import qualified Data.Vector as V
 import           GHC.Generics (Generic)
 
@@ -30,7 +31,7 @@ openPositions od (AccountID aid) =
      jsonResponseArray url opts "positions"
 
 data Position = Position
-  { positionInstrument :: String
+  { positionInstrument :: T.Text
   , positionUnits      :: Int
   , positionSide       :: Side
   , positionAvgPrice   :: Decimal

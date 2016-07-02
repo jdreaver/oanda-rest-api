@@ -1,5 +1,5 @@
 name: oanda-rest-api
-version: "0.2.0.0"
+version: "0.3.0.0"
 synopsis: Client to the OANDA REST API
 description: Client to the OANDA REST API
 license: BSD3
