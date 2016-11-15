@@ -1,1 +1,3 @@
-stack-7.10.yaml
+resolver: lts-7.9
+packages:
+  - '.'

@@ -15,6 +15,7 @@ addons:
 env:
 # - ARGS="--stack-yaml stack-7.8.yaml"
 - ARGS="--stack-yaml stack-7.10.yaml"
+- ARGS="--stack-yaml stack.yaml"
 
 before_install:
 # Download and unpack the stack executable
