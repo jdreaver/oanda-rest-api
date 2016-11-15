@@ -30,17 +30,17 @@ instance FromJSON Account where
 -- | Get all accounts for given access token
 accounts :: OandaEnv -> IO (V.Vector Account)
 accounts od = do
-  let url = baseURL od ++ "/v1/accounts"
-      opts = constructOpts od []
-  jsonResponseArray url opts "accounts"
+  let url = "GET " ++ baseURL od ++ "/v1/accounts"
+  request <- constructRequest od url []
+  jsonResponseArray request "accounts"
 
 
 -- | Get all account info associated with an account ID.
 accountInfo :: OandaEnv -> AccountID -> IO AccountInfo
-accountInfo od (AccountID aid) =
-  do let url = baseURL od ++ "/v1/accounts/" ++ show aid
-         opts = constructOpts od []
-     jsonResponse url opts
+accountInfo od (AccountID aid) = do
+  let url = "GET " ++ baseURL od ++ "/v1/accounts/" ++ show aid
+  request <- constructRequest od url []
+  jsonResponse request
 
 
 data AccountInfo = AccountInfo

@@ -55,22 +55,22 @@ instance FromJSON Instrument where
 -- | Retrieve a list of instruments from OANDA
 instruments :: OandaEnv -> AccountID -> InstrumentsArgs -> IO (V.Vector Instrument)
 instruments od (AccountID aid) (InstrumentsArgs fs is) = do
-  let url = baseURL od ++ "/v1/instruments"
-      opts = constructOpts od [ ("accountId", Just [pack $ show aid])
-                              , ("instruments", is)
-                              , ("fields", fs)
-                              ]
-  jsonResponseArray url opts "instruments"
-
+  let url = "GET " ++ baseURL od ++ "/v1/instruments"
+  request <- constructRequest od url
+    [ ("accountId", Just [pack $ show aid])
+    , ("instruments", is)
+    , ("fields", fs)
+    ]
+  jsonResponseArray request "instruments"
 
 -- | Retrieve the current prices for a list of instruments.
 prices :: OandaEnv -> [InstrumentText] -> Maybe ZonedTime -> IO (V.Vector Price)
-prices od is zt =
-  do let url = baseURL od ++ "/v1/prices"
-         ztOpt = maybe [] (\zt' -> [("since", Just [pack $ formatTimeRFC3339 zt'])]) zt
-         opts = constructOpts od $ ("instruments", Just is) : ztOpt
-
-     jsonResponseArray url opts "prices"
+prices od is zt = do
+  let
+    url = "GET " ++ baseURL od ++ "/v1/prices"
+    ztOpt = maybe [] (\zt' -> [("since", Just [pack $ formatTimeRFC3339 zt'])]) zt
+  request <- constructRequest od url (("instruments", Just is) : ztOpt)
+  jsonResponseArray request "prices"
 
 data Price = Price
   { priceInstrument :: InstrumentText
@@ -86,43 +86,47 @@ instance FromJSON Price where
 -- | Retrieve the price history of a single instrument in midpoint candles
 midpointCandles :: OandaEnv -> InstrumentText -> CandlesArgs ->
                    IO (V.Vector MidpointCandlestick)
-midpointCandles od i args =
-  do let (url, opts) = candleOpts od i args "midpoint"
-     response <- jsonResponse url opts :: IO MidpointCandlesResponse
-     return $ _midcandlesResponseCandles response
+midpointCandles od i args = do
+  request <- candleOpts od i args "midpoint"
+  response <- jsonResponse request :: IO MidpointCandlesResponse
+  return $ _midcandlesResponseCandles response
 
 -- | Retrieve the price history of a single instrument in bid/ask candles
 bidaskCandles :: OandaEnv -> InstrumentText -> CandlesArgs ->
                  IO (V.Vector BidAskCandlestick)
-bidaskCandles od i args =
-  do let (url, opts) = candleOpts od i args "bidask"
-     response <- jsonResponse url opts :: IO BidAskCandlesResponse
-     return $ _bidaskResponseCandles response
+bidaskCandles od i args = do
+  request <- candleOpts od i args "bidask"
+  response <- jsonResponse request :: IO BidAskCandlesResponse
+  return $ _bidaskResponseCandles response
 
 
 -- | Utility function for both candle history functions
-candleOpts :: OandaEnv -> InstrumentText -> CandlesArgs -> String -> (String, Options)
-candleOpts od i (CandlesArgs c g di atz wa) fmt = (url, opts)
-  where url   = baseURL od ++ "/v1/candles"
-        opts  = constructOpts od $ [ ("instrument", Just [i])
-                                   , ("granularity", (:[]) . pack . show <$> g)
-                                   , ("candleFormat", Just [pack fmt])
-                                   , ("dailyAlignment", (:[]) . pack . show <$> di)
-                                   , ("alignmentTimeZone", (:[]) <$> atz)
-                                   , ("weeklyAlignment", (:[]) . pack . show <$> wa)
-                                   ] ++ maybe [] countOpts c
+candleOpts :: OandaEnv -> InstrumentText -> CandlesArgs -> String -> IO Request
+candleOpts od i (CandlesArgs c g di atz wa) fmt = constructRequest od url opts
+  where url = "GET " ++ baseURL od ++ "/v1/candles"
+        opts =
+          [ ("instrument", Just [i])
+          , ("granularity", (:[]) . pack . show <$> g)
+          , ("candleFormat", Just [pack fmt])
+          , ("dailyAlignment", (:[]) . pack . show <$> di)
+          , ("alignmentTimeZone", (:[]) <$> atz)
+          , ("weeklyAlignment", (:[]) . pack . show <$> wa)
+          ] ++ maybe [] countOpts c
         countOpts (Count c') = [("count", Just [pack $ show c'])]
-        countOpts (StartEnd st ed incf) = [ ("start", Just [pack $ formatTimeRFC3339 st])
-                                          , ("end", Just [pack $ formatTimeRFC3339 ed])
-                                          , ("includeFirst", Just [pack $ map toLower (show incf)])
-                                          ]
-        countOpts (StartCount st c' incf) = [ ("start", Just [pack $ formatTimeRFC3339 st])
-                                            , ("count", Just [pack $ show c'])
-                                            , ("includeFirst", Just [pack $ map toLower (show incf)])
-                                            ]
-        countOpts (EndCount ed c') = [ ("end", Just [pack $ formatTimeRFC3339 ed])
-                                     , ("count", Just [pack $ show c'])
-                                     ]
+        countOpts (StartEnd st ed incf) =
+          [ ("start", Just [pack $ formatTimeRFC3339 st])
+          , ("end", Just [pack $ formatTimeRFC3339 ed])
+          , ("includeFirst", Just [pack $ map toLower (show incf)])
+          ]
+        countOpts (StartCount st c' incf) =
+          [ ("start", Just [pack $ formatTimeRFC3339 st])
+          , ("count", Just [pack $ show c'])
+          , ("includeFirst", Just [pack $ map toLower (show incf)])
+          ]
+        countOpts (EndCount ed c') =
+          [ ("end", Just [pack $ formatTimeRFC3339 ed])
+          , ("count", Just [pack $ show c'])
+          ]
 
 data MidpointCandlestick = MidpointCandlestick
   { midpointCandlestickTime     :: ZonedTime

@@ -19,10 +19,10 @@ import OANDA.Internal
 
 -- | Get all open positions for an account.
 openPositions :: OandaEnv -> AccountID -> IO (V.Vector Position)
-openPositions od (AccountID aid) =
-  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions"
-         opts = constructOpts od []
-     jsonResponseArray url opts "positions"
+openPositions od (AccountID aid) = do
+  let url = "GET " ++ baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions"
+  request <- constructRequest od url []
+  jsonResponseArray request "positions"
 
 data Position = Position
   { positionInstrument :: Text
@@ -34,22 +34,19 @@ data Position = Position
 instance FromJSON Position where
   parseJSON = genericParseJSON $ jsonOpts "position"
 
-
 -- | Get open position for an account on a given instrument.
 position :: OandaEnv -> AccountID -> InstrumentText -> IO Position
-position od (AccountID aid) ins =
-  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ unpack ins
-         opts = constructOpts od []
-     jsonResponse url opts
-
+position od (AccountID aid) ins = do
+  let url = "GET " ++ baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ unpack ins
+  request <- constructRequest od url []
+  jsonResponse request
 
 -- | Closes an existing position.
 closePosition :: OandaEnv -> AccountID -> InstrumentText -> IO CloseResponse
-closePosition od (AccountID aid) ins =
-  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ unpack ins
-         opts = constructOpts od []
-     jsonDelete url opts
-
+closePosition od (AccountID aid) ins = do
+  let url = "DELETE " ++ baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ unpack ins
+  request <- constructRequest od url []
+  jsonResponse request
 
 data CloseResponse = CloseResponse
   { closeResponseIds        :: V.Vector Int
@@ -57,7 +54,6 @@ data CloseResponse = CloseResponse
   , closeResponseTotalUnits :: Int
   , closeResponsePrice      :: Decimal
   } deriving (Show, Generic)
-
 
 instance FromJSON CloseResponse where
   parseJSON = genericParseJSON $ jsonOpts "closeResponse"

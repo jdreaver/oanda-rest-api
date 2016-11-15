@@ -25,9 +25,9 @@ import OANDA.Internal
 -- | Get a list of transactions for the account.
 transactionHistory :: OandaEnv -> AccountID -> IO (V.Vector Transaction)
 transactionHistory od (AccountID aid) =
-  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/transactions"
-         opts = constructOpts od []
-     jsonResponseArray url opts "transactions"
+  do let url = "GET " ++ baseURL od ++ "/v1/accounts/" ++ show aid ++ "/transactions"
+     request <- constructRequest od url []
+     jsonResponseArray request "transactions"
 
 
 data Transaction = Transaction

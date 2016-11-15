@@ -2,6 +2,7 @@
 
 - Prefer `Text` instead of `String` for arguments. We still use `String` in
   endpoints since that is what `wreq` uses.
+- Use `http-conduit` instead of `wreq`
 
 # 0.2.0.0
 

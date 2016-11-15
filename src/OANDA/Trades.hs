@@ -32,17 +32,16 @@ instance FromJSON Trade where
 
 -- | Gets a list of all open trades in an account.
 openTrades :: OandaEnv -> AccountID -> IO (V.Vector Trade)
-openTrades od (AccountID aid) =
-  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/trades"
-         opts = constructOpts od []
-     jsonResponseArray url opts "trades"
-
+openTrades od (AccountID aid) = do
+  let url = "GET " ++ baseURL od ++ "/v1/accounts/" ++ show aid ++ "/trades"
+  request <- constructRequest od url []
+  jsonResponseArray request "trades"
 
 type TradeID = Int
 
 -- | Get info for a specific trade.
 tradeInfo :: OandaEnv -> AccountID -> TradeID -> IO Trade
-tradeInfo od (AccountID aid) tid =
-  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/trades/" ++ show tid
-         opts = constructOpts od []
-     jsonResponse url opts
+tradeInfo od (AccountID aid) tid = do
+  let url = "GET " ++ baseURL od ++ "/v1/accounts/" ++ show aid ++ "/trades/" ++ show tid
+  request <- constructRequest od url []
+  jsonResponse request

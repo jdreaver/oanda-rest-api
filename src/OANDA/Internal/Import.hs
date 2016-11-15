@@ -27,8 +27,9 @@ import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Scientific as X
 import Data.Text (Text, intercalate, unpack, pack)
+import Data.Text.Encoding as X
 import Data.Thyme as X
 import Data.Thyme.Format.Aeson as X ()
 import GHC.Generics (Generic)
-import Network.Wreq as X
+import Network.HTTP.Simple as X
 import System.Locale (defaultTimeLocale)

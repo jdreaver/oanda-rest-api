@@ -5,14 +5,13 @@
 -- | Internal module for dealing with requests via wreq
 
 module OANDA.Internal.Request
-  ( constructOpts
+  ( constructRequest
   , baseURL
-  , makeParams
   , commaList
   , jsonOpts
   , jsonResponse
   , jsonResponseArray
-  , jsonDelete
+  -- , jsonDelete
   , formatTimeRFC3339
   ) where
 
@@ -23,7 +22,6 @@ import qualified Data.Map as Map
 import OANDA.Internal.Import
 import OANDA.Internal.Types
 
-
 -- | Specifies the endpoints for each `APIType`. These are the base URLs for
 -- each API call.
 baseURL :: OandaEnv -> String
@@ -32,29 +30,22 @@ baseURL env = apiEndpoint (apiType env)
         apiEndpoint Practice = "https://api-fxpractice.oanda.com"
         apiEndpoint Live     = "https://api-fxtrade.oanda.com"
 
--- | Create options for Wreq `getWith` using access token and params.
-constructOpts :: OandaEnv -> [(Text, Maybe [Text])] -> Options
-constructOpts env = constructOpts' (accessToken env)
-
-constructOpts' :: Maybe AccessToken -> [(Text, Maybe [Text])] -> Options
-constructOpts' maybeTok ps = defaults & params' & header'
-  where params' = makeParams ps
-        header' = maybe id makeHeader maybeTok
-        makeHeader (AccessToken t) = header "Authorization" .~ ["Bearer " `BS.append` t]
-
-
--- | Create a valid list of params for wreq.
-makeParams :: [(Text, Maybe [Text])] -> Options -> Options
-makeParams xs = params .~ params'
-  where paramToMaybe (name, Just xs') = Just (name, commaList xs')
-        paramToMaybe (_, Nothing) = Nothing
-        params' = catMaybes $ fmap paramToMaybe xs
-
+constructRequest :: OandaEnv -> String -> [(Text, Maybe [Text])] -> IO Request
+constructRequest env url params = do
+  initRequest <- parseRequest url
+  return $
+    initRequest
+    & maybe id makeAuthHeader (accessToken env)
+    & setRequestQueryString params'
+  where
+    makeAuthHeader (AccessToken t) = addRequestHeader "Authorization" ("Bearer " `BS.append` t)
+    paramToMaybe (name, Just xs') = Just (encodeUtf8 name, Just $ encodeUtf8 $ commaList xs')
+    paramToMaybe (_, Nothing) = Nothing
+    params' = catMaybes $ fmap paramToMaybe params
 
 -- | Convert a Maybe [Text] item into empty text or comma-separated text.
 commaList :: [Text] -> Text
 commaList = intercalate ","
-
 
 -- | Used to derive FromJSON instances.
 jsonOpts :: String -> TH.Options
@@ -63,21 +54,14 @@ jsonOpts s = TH.defaultOptions { TH.fieldLabelModifier = firstLower . drop (leng
         firstLower (x:xs) = toLower x : xs
 
 -- | Boilerplate function to perform a request and extract the response body.
-jsonResponse :: (FromJSON a) => String -> Options -> IO a
-jsonResponse url opts =
-  do r <- asJSON =<< getWith opts url
-     return $ r ^. responseBody
+jsonResponse :: (FromJSON a) => Request -> IO a
+jsonResponse request = getResponseBody <$> httpJSON request
 
 -- | Boilerplate function to perform a request and extract the response body.
-jsonResponseArray :: (FromJSON a) => String -> Options -> String -> IO a
-jsonResponseArray url opts name =
-  do body <- jsonResponse url opts
+jsonResponseArray :: (FromJSON a) => Request -> String -> IO a
+jsonResponseArray request name =
+  do body <- jsonResponse request
      return $ body Map.! (name :: String)
-
-jsonDelete :: (FromJSON a) => String -> Options -> IO a
-jsonDelete url opts =
-  do r <- asJSON =<< deleteWith opts url
-     return $ r ^. responseBody
 
 -- | Formats time according to RFC3339 (which is the time format used by
 -- OANDA). Taken from the <https://github.com/HugoDaniel/timerep timerep> library.

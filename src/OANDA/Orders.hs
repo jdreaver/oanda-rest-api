@@ -15,10 +15,10 @@ import OANDA.Internal
 
 -- | Get all open orders for an account.
 openOrders :: OandaEnv -> AccountID -> IO (V.Vector Order)
-openOrders od (AccountID aid) =
-  do let url = baseURL od ++ "/v1/accounts/" ++ show aid ++ "/orders"
-         opts = constructOpts od []
-     jsonResponseArray url opts "orders"
+openOrders od (AccountID aid) = do
+  let url = "GET " ++ baseURL od ++ "/v1/accounts/" ++ show aid ++ "/orders"
+  request <- constructRequest od url []
+  jsonResponseArray request "orders"
 
 
 data Order = Order
