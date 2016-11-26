@@ -1,10 +1,12 @@
-# 0.3.0.0
+# Changelog
+
+## 0.3.0.0
 
 - Prefer `Text` instead of `String` for arguments. We still use `String` in
   endpoints since that is what `wreq` uses.
 - Use `http-conduit` instead of `wreq`
 
-# 0.2.0.0
+## 0.2.0.0
 
 - Use thyme instead of time. Thyme uses a much more efficient representation of
   time stamps. Note that thyme has a module called Data.Thyme.Time that
@@ -17,6 +19,6 @@
   when empty lists were passed, and also makes it so we don't have to hard-code
   defaults.
 
-# 0.1.0.0
+## 0.1.0.0
 
 Initial release. The API is not yet complete, but there is enough to be useful.
