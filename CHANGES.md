@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1
+
+- Added endpoint to create orders
+
 ## 0.3.0.0
 
 - Prefer `Text` instead of `String` for arguments. We still use `String` in
