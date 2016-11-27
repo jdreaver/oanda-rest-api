@@ -8,7 +8,6 @@ module OANDA.Internal.Types
        ( OandaEnv
        , apiType
        , accessToken
-       , sandboxAuth
        , practiceAuth
        , liveAuth
        , APIType (..)
@@ -23,30 +22,24 @@ import OANDA.Internal.Import
 
 -- | Wraps an `APIType` and an `AccessToken`. Mainly just a convenience wrapper
 -- to make functions have fewer arguments. To instantiate this type, use the
--- `sandboxAuth`, `practiceAuth`, or `liveAuth` functions.
+-- `practiceAuth` or `liveAuth` functions.
 data OandaEnv = OandaEnv
   { apiType     :: APIType
-  , accessToken :: Maybe AccessToken
+  , accessToken :: AccessToken
   } deriving (Show)
-
--- | Use the sandbox API.
-sandboxAuth :: OandaEnv
-sandboxAuth = OandaEnv Sandbox Nothing
 
 -- | Use the practice API.
 practiceAuth :: AccessToken -> OandaEnv
-practiceAuth = OandaEnv Practice . Just
+practiceAuth = OandaEnv Practice
 
 -- | Use the live API.
 liveAuth :: AccessToken -> OandaEnv
-liveAuth = OandaEnv Live . Just
-
+liveAuth = OandaEnv Live
 
 -- | The three endpoint types used in the REST API. See the following link for
 -- details: <http://developer.oanda.com/rest-live/development-guide/>
 data APIType
-  = Sandbox
-  | Practice
+  = Practice
   | Live
   deriving (Show)
 

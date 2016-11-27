@@ -25,16 +25,16 @@ import OANDA.Internal.Types
 -- each API call.
 baseURL :: OandaEnv -> String
 baseURL env = apiEndpoint (apiType env)
-  where apiEndpoint Sandbox  = "http://api-sandbox.oanda.com"
-        apiEndpoint Practice = "https://api-fxpractice.oanda.com"
-        apiEndpoint Live     = "https://api-fxtrade.oanda.com"
+  where
+    apiEndpoint Practice = "https://api-fxpractice.oanda.com"
+    apiEndpoint Live     = "https://api-fxtrade.oanda.com"
 
 constructRequest :: OandaEnv -> String -> [(Text, Maybe [Text])] -> IO Request
 constructRequest env url params = do
   initRequest <- parseRequest url
   return $
     initRequest
-    & maybe id makeAuthHeader (accessToken env)
+    & makeAuthHeader (accessToken env)
     & setRequestQueryString params'
   where
     makeAuthHeader (AccessToken t) = addRequestHeader "Authorization" ("Bearer " `BS.append` t)

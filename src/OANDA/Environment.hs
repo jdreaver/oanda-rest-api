@@ -4,7 +4,6 @@ module OANDA.Environment
   ( OandaEnv
   , apiType
   , accessToken
-  , sandboxAuth
   , practiceAuth
   , liveAuth
   , APIType (..)
