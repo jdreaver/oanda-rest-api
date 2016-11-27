@@ -30,6 +30,14 @@ dependencies:
   - thyme
   - vector >= 0.10.0
 
+default-extensions:
+  - CPP
+  - DeriveGeneric
+  - OverloadedStrings
+  - RecordWildCards
+  - ScopedTypeVariables
+  - TupleSections
+
 library:
   source-dirs:
     - src

@@ -21,6 +21,7 @@ module OANDA.Internal.Import
 import Control.Lens ((.~), (^.), (&))
 import Control.Monad (mzero)
 import Data.Aeson as X
+import Data.Aeson.Types as X
 import Data.Char (toLower)
 import Data.Decimal as X
 import Data.Maybe (catMaybes)

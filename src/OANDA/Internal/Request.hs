@@ -11,7 +11,6 @@ module OANDA.Internal.Request
   , jsonOpts
   , jsonResponse
   , jsonResponseArray
-  -- , jsonDelete
   , formatTimeRFC3339
   ) where
 
@@ -72,6 +71,8 @@ formatTimeRFC3339 zt@(ZonedTime _ z) = formatTime defaultTimeLocale "%FT%T" zt <
                     then "Z"
                     else take 3 timeZoneStr <> ":" <> drop 3 timeZoneStr
 
+instance (Show a, Integral a) => ToJSON (DecimalRaw a) where
+  toJSON = toJSON . show
 
 instance (Integral a) => FromJSON (DecimalRaw a) where
   parseJSON (Number n) = readDecimalJSON n

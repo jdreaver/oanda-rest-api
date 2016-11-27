@@ -44,33 +44,39 @@ liveAuth = OandaEnv Live . Just
 
 -- | The three endpoint types used in the REST API. See the following link for
 -- details: <http://developer.oanda.com/rest-live/development-guide/>
-data APIType = Sandbox
-             | Practice
-             | Live
-             deriving (Show)
+data APIType
+  = Sandbox
+  | Practice
+  | Live
+  deriving (Show)
 
 -- | The token given by OANDA used to access the API
 newtype AccessToken = AccessToken { unAccessToken :: BS.ByteString }
-                      deriving (Show)
-
+  deriving (Show)
 
 -- | Integer representing the Account ID of an account
 newtype AccountID = AccountID { unAccountID :: Int}
-                    deriving (Show)
+  deriving (Show)
 
 -- | Used when reporting a position in the API
-data Side = Buy
-          | Sell
-          deriving (Show, Generic)
+data Side
+  = Buy
+  | Sell
+  deriving (Generic)
+
+sideJSONTagModifier :: String -> String
+sideJSONTagModifier "Buy" = "buy"
+sideJSONTagModifier "Sell" = "sell"
+sideJSONTagModifier s = s
+
+instance Show Side where
+  show Buy = "buy"
+  show Sell = "sell"
+
+instance ToJSON Side where
+  toJSON = genericToJSON $ defaultOptions { constructorTagModifier = sideJSONTagModifier }
 
 instance FromJSON Side where
-  parseJSON (String s) = fmap readSide (pure $ unpack s)
-  parseJSON _          = mzero
-
-
-readSide :: String -> Side
-readSide "buy"  = Buy
-readSide "sell" = Sell
-readSide _      = error "No parse Side"
+  parseJSON = genericParseJSON $ defaultOptions { constructorTagModifier = sideJSONTagModifier }
 
 type InstrumentText = Text
