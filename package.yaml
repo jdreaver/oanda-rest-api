@@ -33,9 +33,11 @@ dependencies:
 default-extensions:
   - CPP
   - DeriveGeneric
+  - GeneralizedNewtypeDeriving
   - OverloadedStrings
   - RecordWildCards
   - ScopedTypeVariables
+  - TemplateHaskell
   - TupleSections
 
 library:

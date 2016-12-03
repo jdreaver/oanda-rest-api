@@ -3,34 +3,45 @@
 
 module OANDA.Internal.Import
   ( module X
-  , (.~)
-  , (^.)
-  , (&)
-  , mzero
-  , toLower
-  , catMaybes
-  , Text
-  , intercalate
-  , unpack
-  , pack
-  , Generic
-  , defaultTimeLocale
-  , (<>)
+  , unPrefix
   ) where
 
-import Control.Lens ((.~), (^.), (&))
-import Control.Monad (mzero)
+import Control.Lens as X ((.~), (^.), (&))
+import Control.Monad as X (mzero)
 import Data.Aeson as X
+import Data.Aeson.TH as X
 import Data.Aeson.Types as X
-import Data.Char (toLower)
+import Data.Char as X (toLower)
 import Data.Decimal as X
-import Data.Maybe (catMaybes)
-import Data.Monoid ((<>))
+import Data.Maybe as X (catMaybes)
+import Data.Monoid as X ((<>))
 import Data.Scientific as X
-import Data.Text (Text, intercalate, unpack, pack)
+import Data.Text as X (Text, intercalate, unpack, pack)
 import Data.Text.Encoding as X
 import Data.Thyme as X
 import Data.Thyme.Format.Aeson as X ()
-import GHC.Generics (Generic)
+import GHC.Generics as X (Generic)
 import Network.HTTP.Simple as X
-import System.Locale (defaultTimeLocale)
+import System.Locale as X (defaultTimeLocale)
+
+-- | Aeson Options that remove the prefix from fields
+unPrefix :: String -> Options
+unPrefix prefix = defaultOptions
+  { fieldLabelModifier = unCapitalize . dropPrefix prefix }
+
+-- | Lower case leading character
+unCapitalize :: String -> String
+unCapitalize [] = []
+unCapitalize (c:cs) = toLower c : cs
+
+-- | Remove given prefix
+dropPrefix :: String -> String -> String
+dropPrefix prefix input = go prefix input
+  where
+    go pre [] = error $ contextual $ "prefix leftover: " <> pre
+    go [] (c:cs) = c : cs
+    go (p:preRest) (c:cRest)
+      | p == c = go preRest cRest
+      | otherwise = error $ contextual $ "not equal: " <>  (p:preRest)  <> " " <> (c:cRest)
+
+    contextual msg = "dropPrefix: " <> msg <> ". " <> prefix <> " " <> input

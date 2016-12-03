@@ -5,7 +5,11 @@
 -- | Internal module for dealing with requests via wreq
 
 module OANDA.Internal.Request
-  ( constructRequest
+  ( OANDARequest (..)
+  , OANDARequestType (..)
+  , makeOandaRequest
+  , baseRequest
+  , constructRequest
   , baseURL
   , commaList
   , jsonOpts
@@ -14,12 +18,32 @@ module OANDA.Internal.Request
   , formatTimeRFC3339
   ) where
 
+import Control.Monad.IO.Class
 import qualified Data.Aeson.TH as TH
 import qualified Data.ByteString as BS
 import qualified Data.Map as Map
 
 import OANDA.Internal.Import
 import OANDA.Internal.Types
+
+-- | This is the type returned by the API functions. This is meant to be used
+-- with some of our request functions, depending on how safe the user wants to
+-- be.
+data OANDARequest a
+  = OANDARequest
+  { oandaRequestRequest :: Request
+  , oandaRequestType :: OANDARequestType
+  } deriving (Show)
+
+data OANDARequestType
+  = JsonRequest
+  | JsonArrayRequest String
+  deriving (Show)
+
+-- | Simplest way to make requests, but throws exception on errors.
+makeOandaRequest :: (MonadIO m, FromJSON a) => OANDARequest a -> m a
+makeOandaRequest (OANDARequest request JsonRequest) = getResponseBody <$> httpJSON request
+makeOandaRequest (OANDARequest request (JsonArrayRequest key)) = (Map.! key) . getResponseBody <$> httpJSON request
 
 -- | Specifies the endpoints for each `APIType`. These are the base URLs for
 -- each API call.
@@ -29,6 +53,20 @@ baseURL env = apiEndpoint (apiType env)
     apiEndpoint Practice = "https://api-fxpractice.oanda.com"
     apiEndpoint Live     = "https://api-fxtrade.oanda.com"
 
+baseRequest :: OandaEnv -> String -> String -> Request
+baseRequest env requestType url =
+  unsafeParseRequest (requestType ++ " " ++ baseURL env ++ url)
+  & makeAuthHeader (accessToken env)
+  where
+    makeAuthHeader (AccessToken t) = addRequestHeader "Authorization" ("Bearer " `BS.append` t)
+
+unsafeParseRequest :: String -> Request
+unsafeParseRequest = unsafeParseRequest' . parseRequest
+  where
+    unsafeParseRequest' (Left err) = error $ show err
+    unsafeParseRequest' (Right request) = request
+
+-- TODO: Delete
 constructRequest :: OandaEnv -> String -> [(Text, Maybe [Text])] -> IO Request
 constructRequest env url params = do
   initRequest <- parseRequest url

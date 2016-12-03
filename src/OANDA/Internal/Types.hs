@@ -48,8 +48,8 @@ newtype AccessToken = AccessToken { unAccessToken :: BS.ByteString }
   deriving (Show)
 
 -- | Integer representing the Account ID of an account
-newtype AccountID = AccountID { unAccountID :: Int}
-  deriving (Show)
+newtype AccountID = AccountID { unAccountID :: String }
+  deriving (Show, FromJSON, ToJSON)
 
 -- | Used when reporting a position in the API
 data Side
