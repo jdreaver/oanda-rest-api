@@ -16,6 +16,8 @@ module OANDA.Internal.Types
        , Side (..)
        , InstrumentText
        , InstrumentName (..)
+       , AccountUnits (..)
+       , Currency (..)
        ) where
 
 import qualified Data.ByteString as BS
@@ -76,4 +78,10 @@ instance FromJSON Side where
 type InstrumentText = Text
 
 newtype InstrumentName = InstrumentName { unInstrumentName :: Text }
+  deriving (Show, FromJSON, ToJSON, IsString)
+
+newtype AccountUnits = AccountUnits { unAccountUnits :: Text }
+  deriving (Show, FromJSON, ToJSON, IsString)
+
+newtype Currency = Currency { unCurrency :: Text }
   deriving (Show, FromJSON, ToJSON, IsString)
