@@ -28,6 +28,7 @@ dependencies:
   - scientific >= 0.3.3.0
   - text >= 1.2.0
   - thyme
+  - transformers
   - vector >= 0.10.0
 
 default-extensions:
