@@ -6,7 +6,12 @@ module OANDA.Internal.Import
   , unPrefix
   ) where
 
-import Control.Lens as X ((.~), (^.), (&))
+import Control.Lens as X
+  ( (.~)
+  , (^.)
+  , (&)
+  , makeLenses
+  )
 import Control.Monad as X (mzero)
 import Data.Aeson as X
 import Data.Aeson.TH as X
@@ -16,6 +21,7 @@ import Data.Decimal as X
 import Data.Maybe as X (catMaybes)
 import Data.Monoid as X ((<>))
 import Data.Scientific as X
+import Data.String as X (IsString (..), fromString)
 import Data.Text as X (Text, intercalate, unpack, pack)
 import Data.Text.Encoding as X
 import Data.Thyme as X

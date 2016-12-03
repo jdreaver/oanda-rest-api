@@ -4,6 +4,7 @@ module OANDA
 
 import OANDA.Accounts as X
 import OANDA.Environment as X
+import OANDA.Instrument as X
 import OANDA.Internal as X
   ( OANDARequest
   , makeOandaRequest

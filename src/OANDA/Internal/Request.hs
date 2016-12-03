@@ -6,7 +6,6 @@
 
 module OANDA.Internal.Request
   ( OANDARequest (..)
-  , OANDARequestType (..)
   , makeOandaRequest
   , baseRequest
   , constructRequest
@@ -31,19 +30,13 @@ import OANDA.Internal.Types
 -- be.
 data OANDARequest a
   = OANDARequest
+  -- TODO: Make this a newtype?
   { oandaRequestRequest :: Request
-  , oandaRequestType :: OANDARequestType
   } deriving (Show)
-
-data OANDARequestType
-  = JsonRequest
-  | JsonArrayRequest String
-  deriving (Show)
 
 -- | Simplest way to make requests, but throws exception on errors.
 makeOandaRequest :: (MonadIO m, FromJSON a) => OANDARequest a -> m a
-makeOandaRequest (OANDARequest request JsonRequest) = getResponseBody <$> httpJSON request
-makeOandaRequest (OANDARequest request (JsonArrayRequest key)) = (Map.! key) . getResponseBody <$> httpJSON request
+makeOandaRequest (OANDARequest request) = getResponseBody <$> httpJSON request
 
 -- | Specifies the endpoints for each `APIType`. These are the base URLs for
 -- each API call.

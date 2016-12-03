@@ -15,6 +15,7 @@ module OANDA.Internal.Types
        , AccountID (..)
        , Side (..)
        , InstrumentText
+       , InstrumentName (..)
        ) where
 
 import qualified Data.ByteString as BS
@@ -73,3 +74,6 @@ instance FromJSON Side where
   parseJSON = genericParseJSON $ defaultOptions { constructorTagModifier = sideJSONTagModifier }
 
 type InstrumentText = Text
+
+newtype InstrumentName = InstrumentName { unInstrumentName :: Text }
+  deriving (Show, FromJSON, ToJSON, IsString)

@@ -5,6 +5,7 @@
 module OANDA.Accounts
   ( AccountProperties (..)
   , oandaAccounts
+  , AccountsResponse (..)
   ) where
 
 import qualified Data.Vector as V
@@ -20,11 +21,15 @@ data AccountProperties = AccountProperties
 
 deriveJSON (unPrefix "accountProperties") ''AccountProperties
 
-oandaAccounts :: OandaEnv -> OANDARequest (V.Vector AccountProperties)
-oandaAccounts env = OANDARequest request (JsonArrayRequest "accounts")
-  where
-    request =
-      baseRequest env "GET" "/v3/accounts"
+oandaAccounts :: OandaEnv -> OANDARequest AccountsResponse
+oandaAccounts env = OANDARequest $ baseRequest env "GET" "/v3/accounts"
+
+data AccountsResponse
+  = AccountsResponse
+  { accountsResponseAccounts :: V.Vector AccountProperties
+  } deriving (Show)
+
+deriveJSON (unPrefix "accountsResponse") ''AccountsResponse
 
 -- TODO:
 -- GET /v3/accounts/{AccoundId}
