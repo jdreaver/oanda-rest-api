@@ -18,7 +18,7 @@ import OANDA.Internal
 -- | Get all open orders for an account.
 openOrders :: OandaEnv -> AccountID -> IO (V.Vector Order)
 openOrders od (AccountID aid) = do
-  let url = "GET " ++ baseURL od ++ "/v1/accounts/" ++ show aid ++ "/orders"
+  let url = "GET " ++ apiBaseURL od ++ "/v1/accounts/" ++ show aid ++ "/orders"
   request <- constructRequest od url []
   jsonResponseArray request "orders"
 
@@ -44,7 +44,7 @@ instance FromJSON Order where
 createOrder :: OandaEnv -> AccountID -> CreateOrderBody -> IO Order
 createOrder od (AccountID aid) CreateOrderBody {..} = do
   let
-    url = "POST " ++ baseURL od ++ "/v1/accounts/" ++ show aid ++ "/orders"
+    url = "POST " ++ apiBaseURL od ++ "/v1/accounts/" ++ show aid ++ "/orders"
     (params :: [(BS.ByteString, BS.ByteString)]) = catMaybes
       [ Just ("instrument", encodeUtf8 createOrderBodyInstrument)
       , Just ("units", BS.pack $ show createOrderBodyUnits)

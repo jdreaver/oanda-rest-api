@@ -2,14 +2,18 @@
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
--- | Internal module for dealing with requests via wreq
+-- | Internal module for dealing with requests via http-conduit
 
 module OANDA.Internal.Request
   ( OANDARequest (..)
   , makeOandaRequest
-  , baseRequest
+  , OANDAStreamingRequest (..)
+  , makeOandaStreamingRequest
+  , baseApiRequest
+  , baseStreamingRequest
   , constructRequest
-  , baseURL
+  , apiBaseURL
+  , streamingBaseURL
   , commaList
   , jsonOpts
   , jsonResponse
@@ -18,8 +22,10 @@ module OANDA.Internal.Request
   ) where
 
 import Control.Monad.IO.Class
+import Control.Monad.Trans.Resource (MonadResource)
 import qualified Data.Aeson.TH as TH
 import qualified Data.ByteString as BS
+import Data.Conduit
 import qualified Data.Map as Map
 
 import OANDA.Internal.Import
@@ -28,30 +34,54 @@ import OANDA.Internal.Types
 -- | This is the type returned by the API functions. This is meant to be used
 -- with some of our request functions, depending on how safe the user wants to
 -- be.
-data OANDARequest a
-  = OANDARequest
-  -- TODO: Make this a newtype?
-  { oandaRequestRequest :: Request
-  } deriving (Show)
+newtype OANDARequest a = OANDARequest { unOANDARequest :: Request }
+  deriving (Show)
 
 -- | Simplest way to make requests, but throws exception on errors.
 makeOandaRequest :: (MonadIO m, FromJSON a) => OANDARequest a -> m a
 makeOandaRequest (OANDARequest request) = getResponseBody <$> httpJSON request
 
+-- | This is the type returned by the streaming API functions. This is meant to
+-- be used with some of our streaming request functions, depending on how safe
+-- the user wants to be.
+newtype OANDAStreamingRequest a = OANDAStreamingRequest { unOANDAStreamingRequest :: Request }
+  deriving (Show)
+
+-- | Simplest way to make streaming, but throws exception on errors.
+makeOandaStreamingRequest :: (MonadResource m, FromJSON a) => OANDAStreamingRequest a -> Source m a
+makeOandaStreamingRequest (OANDAStreamingRequest request) = httpSource request parseBody
+  where
+    --parseBody :: (MonadIO m) => Response (Source m ByteString) -> Source m a
+    parseBody response = mapOutput (either error id . eitherDecodeStrict) $ getResponseBody response
+
 -- | Specifies the endpoints for each `APIType`. These are the base URLs for
 -- each API call.
-baseURL :: OandaEnv -> String
-baseURL env = apiEndpoint (apiType env)
+apiBaseURL :: OandaEnv -> String
+apiBaseURL env = apiEndpoint (apiType env)
   where
     apiEndpoint Practice = "https://api-fxpractice.oanda.com"
     apiEndpoint Live     = "https://api-fxtrade.oanda.com"
 
-baseRequest :: OandaEnv -> String -> String -> Request
-baseRequest env requestType url =
-  unsafeParseRequest (requestType ++ " " ++ baseURL env ++ url)
+-- | Specifies the streaming endpoints for each `APIType`. These are the base
+-- URLs for each streaming call.
+streamingBaseURL :: OandaEnv -> String
+streamingBaseURL env = apiEndpoint (apiType env)
+  where
+    apiEndpoint Practice = "https://stream-fxpractice.oanda.com"
+    apiEndpoint Live     = "https://stream-fxtrade.oanda.com"
+
+baseRequest :: OandaEnv -> String -> String -> String -> Request
+baseRequest env baseUrl requestType url =
+  unsafeParseRequest (requestType ++ " " ++ baseUrl ++ url)
   & makeAuthHeader (accessToken env)
   where
     makeAuthHeader (AccessToken t) = addRequestHeader "Authorization" ("Bearer " `BS.append` t)
+
+baseApiRequest :: OandaEnv -> String -> String -> Request
+baseApiRequest env = baseRequest env (apiBaseURL env)
+
+baseStreamingRequest :: OandaEnv -> String -> String -> Request
+baseStreamingRequest env = baseRequest env (streamingBaseURL env)
 
 unsafeParseRequest :: String -> Request
 unsafeParseRequest = unsafeParseRequest' . parseRequest

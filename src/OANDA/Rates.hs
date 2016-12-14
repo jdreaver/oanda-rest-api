@@ -45,7 +45,7 @@ instance FromJSON Instrument where
 -- | Retrieve a list of instruments from OANDA
 instruments :: OandaEnv -> AccountID -> InstrumentsArgs -> IO (V.Vector Instrument)
 instruments od (AccountID aid) (InstrumentsArgs fs is) = do
-  let url = "GET " ++ baseURL od ++ "/v1/instruments"
+  let url = "GET " ++ apiBaseURL od ++ "/v1/instruments"
   request <- constructRequest od url
     [ ("accountId", Just [pack $ show aid])
     , ("instruments", is)
@@ -57,7 +57,7 @@ instruments od (AccountID aid) (InstrumentsArgs fs is) = do
 prices :: OandaEnv -> [InstrumentText] -> Maybe ZonedTime -> IO (V.Vector Price)
 prices od is zt = do
   let
-    url = "GET " ++ baseURL od ++ "/v1/prices"
+    url = "GET " ++ apiBaseURL od ++ "/v1/prices"
     ztOpt = maybe [] (\zt' -> [("since", Just [pack $ formatTimeRFC3339 zt'])]) zt
   request <- constructRequest od url (("instruments", Just is) : ztOpt)
   jsonResponseArray request "prices"

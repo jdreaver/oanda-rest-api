@@ -20,11 +20,13 @@ dependencies:
   - base >= 4.8 && < 5
   - aeson >= 0.8.0
   - bytestring >= 0.10.0
+  - conduit
   - containers >= 0.5.2
   - Decimal >= 0.4.2
   - http-conduit
   - lens >= 4.0
   - old-locale >= 1.0.0.6
+  - resourcet
   - scientific >= 0.3.3.0
   - text >= 1.2.0
   - thyme

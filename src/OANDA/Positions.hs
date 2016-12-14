@@ -20,7 +20,7 @@ import OANDA.Internal
 -- | Get all open positions for an account.
 openPositions :: OandaEnv -> AccountID -> IO (V.Vector Position)
 openPositions od (AccountID aid) = do
-  let url = "GET " ++ baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions"
+  let url = "GET " ++ apiBaseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions"
   request <- constructRequest od url []
   jsonResponseArray request "positions"
 
@@ -37,14 +37,14 @@ instance FromJSON Position where
 -- | Get open position for an account on a given instrument.
 position :: OandaEnv -> AccountID -> InstrumentText -> IO Position
 position od (AccountID aid) ins = do
-  let url = "GET " ++ baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ unpack ins
+  let url = "GET " ++ apiBaseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ unpack ins
   request <- constructRequest od url []
   jsonResponse request
 
 -- | Closes an existing position.
 closePosition :: OandaEnv -> AccountID -> InstrumentText -> IO CloseResponse
 closePosition od (AccountID aid) ins = do
-  let url = "DELETE " ++ baseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ unpack ins
+  let url = "DELETE " ++ apiBaseURL od ++ "/v1/accounts/" ++ show aid ++ "/positions/" ++ unpack ins
   request <- constructRequest od url []
   jsonResponse request
 

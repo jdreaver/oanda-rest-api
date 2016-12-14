@@ -154,7 +154,7 @@ oandaCandles env CandlestickArgs{..} = OANDARequest request
   where
     instrumentText = unpack $ unInstrumentName _candlestickArgsInstrument
     request =
-      baseRequest env "GET" ("/v3/instruments/" ++ instrumentText ++ "/candles")
+      baseApiRequest env "GET" ("/v3/instruments/" ++ instrumentText ++ "/candles")
       & setRequestQueryString params
     params =
       catMaybes

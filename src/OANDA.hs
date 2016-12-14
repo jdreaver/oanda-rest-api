@@ -8,6 +8,8 @@ import OANDA.Instrument as X
 import OANDA.Internal as X
   ( OANDARequest
   , makeOandaRequest
+  , OANDAStreamingRequest
+  , makeOandaStreamingRequest
   )
 import OANDA.Orders as X
 import OANDA.Positions as X

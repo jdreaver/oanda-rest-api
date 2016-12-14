@@ -22,7 +22,7 @@ data AccountProperties = AccountProperties
 deriveJSON (unPrefix "accountProperties") ''AccountProperties
 
 oandaAccounts :: OandaEnv -> OANDARequest AccountsResponse
-oandaAccounts env = OANDARequest $ baseRequest env "GET" "/v3/accounts"
+oandaAccounts env = OANDARequest $ baseApiRequest env "GET" "/v3/accounts"
 
 data AccountsResponse
   = AccountsResponse

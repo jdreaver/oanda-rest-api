@@ -111,7 +111,7 @@ data TakeProfitDetails
   { takeProfitDetailsPrice :: Text
   , takeProfitDetailsTimeInForce :: TimeInForce
   , takeProfitDetailsGtdTime :: ZonedTime
-  , takeProfitDetailsClientExtensions :: ClientExtensions
+  , takeProfitDetailsClientExtensions :: Maybe ClientExtensions
   } deriving (Show)
 
 deriveJSON (unPrefix "takeProfitDetails") ''TakeProfitDetails
@@ -121,7 +121,7 @@ data StopLossDetails
   { stopLossDetailsPrice :: Text
   , stopLossDetailsTimeInForce :: TimeInForce
   , stopLossDetailsGtdTime :: ZonedTime
-  , stopLossDetailsClientExtensions :: ClientExtensions
+  , stopLossDetailsClientExtensions :: Maybe ClientExtensions
   } deriving (Show)
 
 deriveJSON (unPrefix "stopLossDetails") ''StopLossDetails
@@ -131,23 +131,23 @@ data TrailingStopLossDetails
   { trailingStopLossDetailsDistance :: Text
   , trailingStopLossDetailsTimeInForce :: TimeInForce
   , trailingStopLossDetailsGtdTime :: ZonedTime
-  , trailingStopLossDetailsClientExtensions :: ClientExtensions
+  , trailingStopLossDetailsClientExtensions :: Maybe ClientExtensions
   } deriving (Show)
 
 deriveJSON (unPrefix "trailingStopLossDetails") ''TrailingStopLossDetails
 
 data TradeOpen
   = TradeOpen
-  { tradeOpenTradeId :: TradeID
+  { tradeOpenTradeID :: TradeID
   , tradeOpenUnits :: Decimal
-  , tradeOpenClientExtensions :: ClientExtensions
+  , tradeOpenClientExtensions :: Maybe ClientExtensions
   } deriving (Show)
 
 deriveJSON (unPrefix "tradeOpen") ''TradeOpen
 
 data TradeReduce
   = TradeReduce
-  { tradeReduceTradeId :: TradeID
+  { tradeReduceTradeID :: TradeID
   , tradeReduceUnits :: Decimal
   , tradeReduceRealizedPL :: AccountUnits
   , tradeReduceFinancing :: AccountUnits
@@ -157,7 +157,7 @@ deriveJSON (unPrefix "tradeReduce") ''TradeReduce
 
 data OpenTradeFinancing
   = OpenTradeFinancing
-  { openTradeFinancingTradeId :: TradeID
+  { openTradeFinancingTradeID :: TradeID
   , openTradeFinancingFinancing :: AccountUnits
   } deriving (Show)
 
@@ -232,7 +232,7 @@ deriveJSON (unPrefix "transaction") ''Transaction
 
 oandaTransaction :: OandaEnv -> AccountID -> TransactionID -> OANDARequest Transaction
 oandaTransaction env (AccountID accountId) (TransactionID transId) =
-  OANDARequest $ baseRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/transactions/" ++ unpack transId)
+  OANDARequest $ baseApiRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/transactions/" ++ unpack transId)
 
 data TransactionsSinceIDResponse
   = TransactionsSinceIDResponse
@@ -246,5 +246,30 @@ oandaTransactionsSinceID :: OandaEnv -> AccountID -> TransactionID -> OANDAReque
 oandaTransactionsSinceID env (AccountID accountId) (TransactionID transId) = OANDARequest request
   where
     request =
-      baseRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/transactions/sinceid")
+      baseApiRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/transactions/sinceid")
       & setRequestQueryString [("id", Just $ encodeUtf8 transId)]
+
+data TransactionHeartbeat
+  = TransactionHeartbeat
+  { transactionHeartbeatLastTransactionID :: TransactionID
+  , transactionHeartbeatTime :: ZonedTime
+  } deriving (Show)
+
+deriveJSON (unPrefix "transactionHeartbeat") ''TransactionHeartbeat
+
+data TransactionsStreamingResponse
+  = StreamingHeartbeat TransactionHeartbeat
+  | StreamingTransaction Transaction
+  deriving (Show)
+
+instance FromJSON TransactionsStreamingResponse where
+  parseJSON (Object o) = do
+    type' <- o .: "type" :: Parser String
+    case type' of
+      "HEARTBEAT" -> StreamingHeartbeat <$> parseJSON (Object o)
+      _ -> StreamingTransaction <$> parseJSON (Object o)
+  parseJSON _ = mempty
+
+oandaTransactionStream :: OandaEnv -> AccountID -> OANDAStreamingRequest TransactionsStreamingResponse
+oandaTransactionStream env (AccountID accountId) =
+  OANDAStreamingRequest $ baseStreamingRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/transactions/stream")

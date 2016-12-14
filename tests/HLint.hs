@@ -5,10 +5,11 @@ import System.Exit (exitFailure, exitSuccess)
 
 arguments :: [String]
 arguments =
-    [ "--cpp-simple"
-    , "src"
-    , "tests"
-    ]
+  [ "--cpp-simple"
+  , "src"
+  , "tests"
+  , "-i", "Use newtype instead of data"
+  ]
 
 main :: IO ()
 main = do
