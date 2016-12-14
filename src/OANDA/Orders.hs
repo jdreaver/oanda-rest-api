@@ -1,133 +1,207 @@
 -- | Defines the endpoints listed in the
--- <http://developer.oanda.com/rest-live/orders/ Orders> section of the API.
+-- <http://developer.oanda.com/rest-live-v20/orders-df/ Orders> section of the API.
 
-module OANDA.Orders
-  ( openOrders
-  , Order (..)
-  , createOrder
-  , CreateOrderBody (..)
-  , createOrderBody
-  , OANDAOrderType (..)
-  ) where
+module OANDA.Orders where
 
-import qualified Data.ByteString.Char8 as BS
-import qualified Data.Vector as V
+import Data.List (intercalate)
 
-import OANDA.Internal
+import OANDA.Instrument
+import OANDA.Internal hiding (intercalate)
 
--- | Get all open orders for an account.
-openOrders :: OandaEnv -> AccountID -> IO (V.Vector Order)
-openOrders od (AccountID aid) = do
-  let url = "GET " ++ apiBaseURL od ++ "/v1/accounts/" ++ show aid ++ "/orders"
-  request <- constructRequest od url []
-  jsonResponseArray request "orders"
+newtype OrderID = OrderID { unOrderID :: Text }
+  deriving (Show, Eq, ToJSON, FromJSON)
 
-data Order = Order
-  { orderId           :: Integer
-  , orderInstrument   :: InstrumentText
-  , orderUnits        :: Integer
-  , orderSide         :: Side
-  , orderType         :: OANDAOrderType
-  , orderTime         :: ZonedTime
-  , orderPrice        :: Decimal
-  , orderTakeProfit   :: Decimal
-  , orderStopLoss     :: Decimal
-  , orderExpiry       :: ZonedTime
-  , orderUpperBound   :: Decimal
-  , orderLowerBound   :: Decimal
-  , orderTrailingStop :: Decimal
-  } deriving (Show, Generic)
+newtype TransactionID = TransactionID { unTransactionID :: Text }
+  deriving (Show, Eq, ToJSON, FromJSON)
 
-instance FromJSON Order where
-  parseJSON = genericParseJSON $ jsonOpts "order"
+newtype TradeID = TradeID { unTradeID :: Text }
+  deriving (Show, Eq, ToJSON, FromJSON)
 
-createOrder :: OandaEnv -> AccountID -> CreateOrderBody -> IO Order
-createOrder od (AccountID aid) CreateOrderBody {..} = do
-  let
-    url = "POST " ++ apiBaseURL od ++ "/v1/accounts/" ++ show aid ++ "/orders"
-    (params :: [(BS.ByteString, BS.ByteString)]) = catMaybes
-      [ Just ("instrument", encodeUtf8 createOrderBodyInstrument)
-      , Just ("units", BS.pack $ show createOrderBodyUnits)
-      , Just ("side", BS.pack $ show createOrderBodySide)
-      , Just ("type", BS.pack $ show createOrderBodyType)
-      , ("expiry",) . BS.pack . show <$> createOrderBodyExpiry
-      , ("price",) . BS.pack . show <$> createOrderBodyPrice
-      , ("lowerBound",) . BS.pack . show <$> createOrderBodyLowerBound
-      , ("upperBound",) . BS.pack . show <$> createOrderBodyUpperBound
-      , ("stopLoss",) . BS.pack . show <$> createOrderBodyStopLoss
-      , ("takeProfit",) . BS.pack . show <$> createOrderBodyTakeProfit
-      , ("trailingStop",) . BS.pack . show <$> createOrderBodyTrailingStop
+data OrderType
+  = MARKET
+  | LIMIT
+  | STOP
+  | MARKET_IF_TOUCHED
+  | TAKE_PROFIT
+  | STOP_LOSS
+  | TRAILING_STOP_LOSS
+  deriving (Show, Eq)
+
+deriveJSON defaultOptions ''OrderType
+
+data OrderState
+  = PENDING
+  | FILLED
+  | TRIGGERED
+  | CANCELLED
+  deriving (Show, Eq)
+
+deriveJSON defaultOptions ''OrderState
+
+data ClientExtensions
+  = ClientExtensions
+  { clientExtensionsID :: Text
+  , clientExtensionsTag :: Text
+  , clientExtensionsComment :: Text
+  } deriving (Show)
+
+deriveJSON (unPrefix "clientExtensions") ''ClientExtensions
+
+data TimeInForce
+  = GTC
+  | GTD
+  | GFD
+  | FOK
+  | IOC
+  deriving (Show, Eq)
+
+deriveJSON defaultOptions ''TimeInForce
+
+data OrderPositionFill
+  = OPEN_ONLY
+  | REDUCE_FIRST
+  | REDUCE_ONLY
+  | POSITION_DEFAULT
+  deriving (Show, Eq)
+
+deriveJSON defaultOptions ''OrderPositionFill
+
+data MarketOrderPositionCloseout
+  = MarketOrderPositionCloseout
+  { marketOrderPositionCloseoutInstrument :: InstrumentName
+  , marketOrderPositionCloseoutUnits :: Text
+  } deriving (Show)
+
+deriveJSON (unPrefix "marketOrderPositionCloseout") ''MarketOrderPositionCloseout
+
+data MarketOrderTradeClose
+  = MarketOrderTradeClose
+  { marketOrderTradeCloseTradeID :: TradeID
+  , marketOrderTradeCloseClientTradeID :: Text
+  , marketOrderTradeCloseUnits :: Text
+  } deriving (Show)
+
+deriveJSON (unPrefix "marketOrderTradeClose") ''MarketOrderTradeClose
+
+data MarketOrderMarginCloseout
+  = MarketOrderMarginCloseout
+  { marketOrderMarginCloseoutReason :: Text
+  } deriving (Show)
+
+deriveJSON (unPrefix "marketOrderMarginCloseout") ''MarketOrderMarginCloseout
+
+data MarketOrderDelayedTradeClose
+  = MarketOrderDelayedTradeClose
+  { marketOrderDelayedTradeCloseTradeID :: TradeID
+  , marketOrderDelayedTradeCloseClientTradeID :: Text
+  , marketOrderDelayedTradeCloseSourceTransactionID :: TransactionID
+  } deriving (Show)
+
+deriveJSON (unPrefix "marketOrderDelayedTradeClose") ''MarketOrderDelayedTradeClose
+
+data TakeProfitDetails
+  = TakeProfitDetails
+  { takeProfitDetailsPrice :: Text
+  , takeProfitDetailsTimeInForce :: TimeInForce
+  , takeProfitDetailsGtdTime :: ZonedTime
+  , takeProfitDetailsClientExtensions :: Maybe ClientExtensions
+  } deriving (Show)
+
+deriveJSON (unPrefix "takeProfitDetails") ''TakeProfitDetails
+
+data StopLossDetails
+  = StopLossDetails
+  { stopLossDetailsPrice :: Text
+  , stopLossDetailsTimeInForce :: TimeInForce
+  , stopLossDetailsGtdTime :: ZonedTime
+  , stopLossDetailsClientExtensions :: Maybe ClientExtensions
+  } deriving (Show)
+
+deriveJSON (unPrefix "stopLossDetails") ''StopLossDetails
+
+data TrailingStopLossDetails
+  = TrailingStopLossDetails
+  { trailingStopLossDetailsDistance :: Text
+  , trailingStopLossDetailsTimeInForce :: TimeInForce
+  , trailingStopLossDetailsGtdTime :: ZonedTime
+  , trailingStopLossDetailsClientExtensions :: Maybe ClientExtensions
+  } deriving (Show)
+
+deriveJSON (unPrefix "trailingStopLossDetails") ''TrailingStopLossDetails
+
+data Order
+  = Order
+  { orderId :: OrderID
+  , orderCreateTime :: ZonedTime
+  , orderState :: OrderState
+  , orderClientExtensions :: Maybe ClientExtensions
+  , orderType :: OrderType
+  , orderInstrument :: Maybe InstrumentName
+  , orderUnits :: Maybe Decimal
+  , orderTimeInForce :: Maybe TimeInForce
+  , orderPrice :: Maybe PriceValue
+  , orderPriceBound :: Maybe PriceValue
+  , orderPositionFill :: Maybe OrderPositionFill
+  , orderInitialMarketPrice :: Maybe PriceValue
+  , orderTradeClose :: Maybe MarketOrderTradeClose
+  , orderTradeID :: Maybe TradeID
+  , orderClientTradeID :: Maybe Text
+  , orderDistance :: Maybe PriceValue
+  , orderLongPositionCloseout :: Maybe MarketOrderPositionCloseout
+  , orderShortPositionCloseout :: Maybe MarketOrderPositionCloseout
+  , orderMarginCloseout :: Maybe MarketOrderMarginCloseout
+  , orderDelayedTradeClose :: Maybe MarketOrderDelayedTradeClose
+  , orderTakeProfitOnFill :: Maybe TakeProfitDetails
+  , orderStopLossOnFill :: Maybe StopLossDetails
+  , orderTrailingStopLossOnFill :: Maybe TrailingStopLossDetails
+  , orderTradeClientExtensions :: Maybe ClientExtensions
+  , orderFillingTransactionID :: Maybe TransactionID
+  , orderFilledTime :: Maybe ZonedTime
+  , orderTradeOpenedID :: Maybe TradeID
+  , orderTradeReducedID :: Maybe TradeID
+  , orderTradeClosedIDs :: Maybe [TradeID]
+  , orderCancellingTransactionID :: Maybe TransactionID
+  , orderCancelledTime :: Maybe ZonedTime
+  , orderGtdTime :: Maybe ZonedTime
+  , orderReplacesOrderID :: Maybe OrderID
+  , orderReplacedByOrderID :: Maybe OrderID
+  } deriving (Show)
+
+deriveJSON (unPrefix "order") ''Order
+
+data OrdersArgs
+  = OrdersArgs
+  { _ordersArgsIds :: Maybe [OrderID]
+  , _ordersArgsState :: Maybe OrderState
+  , _ordersArgsInstrument :: Maybe InstrumentName
+  , _ordersArgsCount :: Maybe Int
+  , _ordersArgsBeforeID :: Maybe OrderID
+  } deriving (Show)
+
+ordersArgs :: OrdersArgs
+ordersArgs = OrdersArgs Nothing Nothing Nothing Nothing Nothing
+
+makeLenses ''OrdersArgs
+
+data OrdersResponse
+  = OrdersResponse
+  { ordersResponseOrders :: [Order]
+  , ordersResponseLastTransactionID :: TransactionID
+  } deriving (Show)
+
+deriveJSON (unPrefix "ordersResponse") ''OrdersResponse
+
+oandaOrders :: OandaEnv -> AccountID -> OrdersArgs -> OANDARequest OrdersResponse
+oandaOrders env (AccountID accountId) OrdersArgs{..} = OANDARequest request
+  where
+    request =
+      baseApiRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/orders")
+      & setRequestQueryString params
+    params =
+      catMaybes
+      [ ("ids",) . Just . fromString . intercalate "," . fmap (show . unOrderID) <$> _ordersArgsIds
+      , ("state",) . Just . fromString . show <$> _ordersArgsState
+      , ("instrument",) . Just . fromString . unpack . unInstrumentName <$> _ordersArgsInstrument
+      , ("count",) . Just . fromString . show <$> _ordersArgsCount
+      , ("beforeID",) . Just . fromString . show . unOrderID <$> _ordersArgsBeforeID
       ]
-  request <- constructRequest od url []
-  jsonResponse $ request & setRequestBodyURLEncoded params
-
-data CreateOrderBody
-  = CreateOrderBody
-  { createOrderBodyInstrument :: InstrumentText
-  , createOrderBodyUnits :: Integer
-  , createOrderBodySide :: Side
-  , createOrderBodyType :: OANDAOrderType
-  , createOrderBodyExpiry :: Maybe ZonedTime
-    -- ^ Required If order type is ‘limit’, ‘stop’, or ‘marketIfTouched’
-  , createOrderBodyPrice :: Maybe Decimal
-    -- ^ Required If order type is ‘limit’, ‘stop’, or ‘marketIfTouched’
-  , createOrderBodyLowerBound :: Maybe Decimal
-  , createOrderBodyUpperBound :: Maybe Decimal
-  , createOrderBodyStopLoss :: Maybe Decimal
-  , createOrderBodyTakeProfit :: Maybe Decimal
-  , createOrderBodyTrailingStop :: Maybe Decimal
-  }
-  deriving (Show, Generic)
-
-instance ToJSON CreateOrderBody where
-  toJSON = genericToJSON $ jsonOpts "createOrderBody"
-
-instance FromJSON CreateOrderBody where
-  parseJSON = genericParseJSON $ jsonOpts "createOrderBody"
-
-createOrderBody
-  :: InstrumentText
-  -> Integer -- ^ Units
-  -> Side
-  -> OANDAOrderType
-  -> CreateOrderBody
-createOrderBody instrument units side type' =
-  CreateOrderBody
-  { createOrderBodyInstrument = instrument
-  , createOrderBodyUnits = units
-  , createOrderBodySide = side
-  , createOrderBodyType = type'
-  , createOrderBodyExpiry = Nothing
-  , createOrderBodyPrice = Nothing
-  , createOrderBodyLowerBound = Nothing
-  , createOrderBodyUpperBound = Nothing
-  , createOrderBodyStopLoss = Nothing
-  , createOrderBodyTakeProfit = Nothing
-  , createOrderBodyTrailingStop = Nothing
-  }
-
-data OANDAOrderType
-  = OANDALimitOrder
-  | OANDAStopOrder
-  | OANDAMarketIfTouchedOrder
-  | OANDAMarketOrder
-  deriving (Eq, Generic)
-
-oandaOrderTypeJSONTagModifier :: String -> String
-oandaOrderTypeJSONTagModifier "OANDALimitOrder" = "limit"
-oandaOrderTypeJSONTagModifier "OANDAStopOrder" = "stop"
-oandaOrderTypeJSONTagModifier "OANDAMarketIfTouchedOrder" = "marketIfTouched"
-oandaOrderTypeJSONTagModifier "OANDAMarketOrder" = "market"
-oandaOrderTypeJSONTagModifier s = s
-
-instance Show OANDAOrderType where
-  show OANDALimitOrder = "limit"
-  show OANDAStopOrder = "stop"
-  show OANDAMarketIfTouchedOrder = "marketIfTouched"
-  show OANDAMarketOrder = "market"
-
-instance ToJSON OANDAOrderType where
-  toJSON = genericToJSON $ defaultOptions { constructorTagModifier = oandaOrderTypeJSONTagModifier }
-
-instance FromJSON OANDAOrderType where
-  parseJSON = genericParseJSON $ defaultOptions { constructorTagModifier = oandaOrderTypeJSONTagModifier }

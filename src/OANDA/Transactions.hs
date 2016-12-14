@@ -5,15 +5,7 @@
 module OANDA.Transactions where
 
 import OANDA.Internal
-
-newtype TransactionID = TransactionID { unTransactionID :: Text }
-  deriving (Show, Eq, ToJSON, FromJSON)
-
-newtype TradeID = TradeID { unTradeID :: Text }
-  deriving (Show, Eq, ToJSON, FromJSON)
-
-newtype OrderID = OrderID { unOrderID :: Text }
-  deriving (Show, Eq, ToJSON, FromJSON)
+import OANDA.Orders
 
 data TransactionType
   = CREATE
@@ -53,88 +45,6 @@ data TransactionType
   deriving (Show, Eq)
 
 deriveJSON defaultOptions ''TransactionType
-
-data TimeInForce
-  = GTC
-  | GTD
-  | GFD
-  | FOK
-  | IOC
-  deriving (Show, Eq)
-
-deriveJSON defaultOptions ''TimeInForce
-
-data MarketOrderPositionCloseout
-  = MarketOrderPositionCloseout
-  { marketOrderPositionCloseoutInstrument :: InstrumentName
-  , marketOrderPositionCloseoutUnits :: Text
-  } deriving (Show)
-
-deriveJSON (unPrefix "marketOrderPositionCloseout") ''MarketOrderPositionCloseout
-
-data MarketOrderTradeClose
-  = MarketOrderTradeClose
-  { marketOrderTradeCloseTradeID :: TradeID
-  , marketOrderTradeCloseClientTradeID :: Text
-  , marketOrderTradeCloseUnits :: Text
-  } deriving (Show)
-
-deriveJSON (unPrefix "marketOrderTradeClose") ''MarketOrderTradeClose
-
-data MarketOrderMarginCloseout
-  = MarketOrderMarginCloseout
-  { marketOrderMarginCloseoutReason :: Text
-  } deriving (Show)
-
-deriveJSON (unPrefix "marketOrderMarginCloseout") ''MarketOrderMarginCloseout
-
-data MarketOrderDelayedTradeClose
-  = MarketOrderDelayedTradeClose
-  { marketOrderDelayedTradeCloseTradeID :: TradeID
-  , marketOrderDelayedTradeCloseClientTradeID :: Text
-  , marketOrderDelayedTradeCloseSourceTransactionID :: TransactionID
-  } deriving (Show)
-
-deriveJSON (unPrefix "marketOrderDelayedTradeClose") ''MarketOrderDelayedTradeClose
-
-data ClientExtensions
-  = ClientExtensions
-  { clientExtensionsID :: Text
-  , clientExtensionsTag :: Text
-  , clientExtensionsComment :: Text
-  } deriving (Show)
-
-deriveJSON (unPrefix "clientExtensions") ''ClientExtensions
-
-data TakeProfitDetails
-  = TakeProfitDetails
-  { takeProfitDetailsPrice :: Text
-  , takeProfitDetailsTimeInForce :: TimeInForce
-  , takeProfitDetailsGtdTime :: ZonedTime
-  , takeProfitDetailsClientExtensions :: Maybe ClientExtensions
-  } deriving (Show)
-
-deriveJSON (unPrefix "takeProfitDetails") ''TakeProfitDetails
-
-data StopLossDetails
-  = StopLossDetails
-  { stopLossDetailsPrice :: Text
-  , stopLossDetailsTimeInForce :: TimeInForce
-  , stopLossDetailsGtdTime :: ZonedTime
-  , stopLossDetailsClientExtensions :: Maybe ClientExtensions
-  } deriving (Show)
-
-deriveJSON (unPrefix "stopLossDetails") ''StopLossDetails
-
-data TrailingStopLossDetails
-  = TrailingStopLossDetails
-  { trailingStopLossDetailsDistance :: Text
-  , trailingStopLossDetailsTimeInForce :: TimeInForce
-  , trailingStopLossDetailsGtdTime :: ZonedTime
-  , trailingStopLossDetailsClientExtensions :: Maybe ClientExtensions
-  } deriving (Show)
-
-deriveJSON (unPrefix "trailingStopLossDetails") ''TrailingStopLossDetails
 
 data TradeOpen
   = TradeOpen
