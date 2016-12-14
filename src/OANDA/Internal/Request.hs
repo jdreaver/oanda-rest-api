@@ -27,6 +27,7 @@ import qualified Data.Aeson.TH as TH
 import qualified Data.ByteString as BS
 import Data.Conduit
 import qualified Data.Map as Map
+import qualified Network.HTTP.Client as H
 
 import OANDA.Internal.Import
 import OANDA.Internal.Types
@@ -70,6 +71,8 @@ streamingBaseURL env = apiEndpoint (apiType env)
     apiEndpoint Practice = "https://stream-fxpractice.oanda.com"
     apiEndpoint Live     = "https://stream-fxtrade.oanda.com"
 
+-- | Creates a request with the needed base url and an Authorization header for
+-- the Bearer token.
 baseRequest :: OandaEnv -> String -> String -> String -> Request
 baseRequest env baseUrl requestType url =
   unsafeParseRequest (requestType ++ " " ++ baseUrl ++ url)
@@ -84,7 +87,7 @@ baseStreamingRequest :: OandaEnv -> String -> String -> Request
 baseStreamingRequest env = baseRequest env (streamingBaseURL env)
 
 unsafeParseRequest :: String -> Request
-unsafeParseRequest = unsafeParseRequest' . parseRequest
+unsafeParseRequest = unsafeParseRequest' . H.parseUrlThrow
   where
     unsafeParseRequest' (Left err) = error $ show err
     unsafeParseRequest' (Right request) = request

@@ -23,6 +23,7 @@ dependencies:
   - conduit
   - containers >= 0.5.2
   - Decimal >= 0.4.2
+  - http-client
   - http-conduit
   - lens >= 4.0
   - old-locale >= 1.0.0.6
