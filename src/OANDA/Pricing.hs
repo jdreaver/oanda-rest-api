@@ -4,6 +4,7 @@
 
 module OANDA.Pricing where
 
+import qualified Data.ByteString.Lazy as BSL
 import Data.List (intercalate)
 
 import OANDA.Instrument
@@ -62,4 +63,54 @@ oandaPricing env (AccountID accountId) PricingArgs{..} = OANDARequest request
       catMaybes
       [ Just ("instruments", Just . fromString . intercalate "," . fmap (unpack . unInstrumentName) $ _pricingArgsInstruments)
       , ("since",) . Just . fromString . formatTimeRFC3339 <$> _pricingArgsSince
+      ]
+
+data PricingStreamArgs
+  = PricingStreamArgs
+  { _pricingStreamArgsInstruments :: [InstrumentName]
+  , _pricingStreamArgsSnapshot :: Maybe Bool
+  } deriving (Show)
+
+makeLenses ''PricingStreamArgs
+
+pricingStreamArgs :: [InstrumentName] -> PricingStreamArgs
+pricingStreamArgs instruments =
+  PricingStreamArgs
+  { _pricingStreamArgsInstruments = instruments
+  , _pricingStreamArgsSnapshot = Nothing
+  }
+
+data PricingHeartbeat
+  = PricingHeartbeat
+  { pricingHeartbeatTime :: ZonedTime
+  } deriving (Show)
+
+deriveJSON (unPrefix "pricingHeartbeat") ''PricingHeartbeat
+
+data PricingStreamResponse
+  = StreamPricingHeartbeat PricingHeartbeat
+  | StreamPrice Price
+  deriving (Show)
+
+-- The ToJSON instance is just for debugging, it's not actually correct
+deriveToJSON defaultOptions ''PricingStreamResponse
+
+instance FromJSON PricingStreamResponse where
+  parseJSON (Object o) = do
+    type' <- o .: "type" :: Parser String
+    case type' of
+      "HEARTBEAT" -> StreamPricingHeartbeat <$> parseJSON (Object o)
+      _ -> StreamPrice <$> parseJSON (Object o)
+  parseJSON _ = mempty
+
+oandaPricingStream :: OandaEnv -> AccountID -> PricingStreamArgs -> OANDAStreamingRequest PricingStreamResponse
+oandaPricingStream env (AccountID accountId) PricingStreamArgs{..} = OANDAStreamingRequest request
+  where
+    request =
+      baseStreamingRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/pricing/stream")
+      & setRequestQueryString params
+    params =
+      catMaybes
+      [ Just ("instruments", Just . fromString . intercalate "," . fmap (unpack . unInstrumentName) $ _pricingStreamArgsInstruments)
+      , ("since",) . Just . BSL.toStrict . encode <$> _pricingStreamArgsSnapshot
       ]

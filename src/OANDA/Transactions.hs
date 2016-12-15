@@ -287,19 +287,22 @@ data TransactionHeartbeat
 
 deriveJSON (unPrefix "transactionHeartbeat") ''TransactionHeartbeat
 
-data TransactionsStreamingResponse
-  = StreamingHeartbeat TransactionHeartbeat
-  | StreamingTransaction Transaction
+data TransactionsStreamResponse
+  = StreamTransactionHeartbeat TransactionHeartbeat
+  | StreamTransaction Transaction
   deriving (Show)
 
-instance FromJSON TransactionsStreamingResponse where
+-- The ToJSON instance is just for debugging, it's not actually correct
+deriveToJSON defaultOptions ''TransactionsStreamResponse
+
+instance FromJSON TransactionsStreamResponse where
   parseJSON (Object o) = do
     type' <- o .: "type" :: Parser String
     case type' of
-      "HEARTBEAT" -> StreamingHeartbeat <$> parseJSON (Object o)
-      _ -> StreamingTransaction <$> parseJSON (Object o)
+      "HEARTBEAT" -> StreamTransactionHeartbeat <$> parseJSON (Object o)
+      _ -> StreamTransaction <$> parseJSON (Object o)
   parseJSON _ = mempty
 
-oandaTransactionStream :: OandaEnv -> AccountID -> OANDAStreamingRequest TransactionsStreamingResponse
+oandaTransactionStream :: OandaEnv -> AccountID -> OANDAStreamingRequest TransactionsStreamResponse
 oandaTransactionStream env (AccountID accountId) =
   OANDAStreamingRequest $ baseStreamingRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/transactions/stream")
