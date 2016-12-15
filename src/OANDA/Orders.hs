@@ -6,7 +6,7 @@ module OANDA.Orders where
 import Data.List (intercalate)
 
 import OANDA.Instrument
-import OANDA.Internal hiding (intercalate)
+import OANDA.Internal
 import OANDA.Transactions
 
 data Order

@@ -1,6 +1,6 @@
 module OANDA
-    ( module X
-    ) where
+  ( module X
+  ) where
 
 import OANDA.Accounts as X
 import OANDA.Environment as X
@@ -12,4 +12,5 @@ import OANDA.Internal as X
   , makeOandaStreamingRequest
   )
 import OANDA.Orders as X
+import OANDA.Pricing as X
 import OANDA.Transactions as X

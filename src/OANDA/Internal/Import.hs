@@ -22,7 +22,7 @@ import Data.Maybe as X (catMaybes)
 import Data.Monoid as X ((<>))
 import Data.Scientific as X
 import Data.String as X (IsString (..), fromString)
-import Data.Text as X (Text, intercalate, unpack, pack)
+import Data.Text as X (Text, unpack, pack)
 import Data.Text.Encoding as X
 import Data.Thyme as X
 import Data.Thyme.Format.Aeson as X ()
