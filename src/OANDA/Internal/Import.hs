@@ -26,7 +26,6 @@ import Data.Text as X (Text, intercalate, unpack, pack)
 import Data.Text.Encoding as X
 import Data.Thyme as X
 import Data.Thyme.Format.Aeson as X ()
-import GHC.Generics as X (Generic)
 import Network.HTTP.Simple as X
 import System.Locale as X (defaultTimeLocale)
 

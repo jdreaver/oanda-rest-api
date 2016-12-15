@@ -17,7 +17,7 @@ data AccountProperties = AccountProperties
   { accountPropertiesId :: AccountID
   , accountPropertiesMt4AccountID :: Maybe Text
   , accountPropertiesTags :: [Text]
-  } deriving (Show, Generic)
+  } deriving (Show)
 
 deriveJSON (unPrefix "accountProperties") ''AccountProperties
 

@@ -1,24 +1,20 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedStrings #-}
-
 -- | Defines types used in the REST API
 
 module OANDA.Internal.Types
-       ( OandaEnv
-       , apiType
-       , accessToken
-       , practiceAuth
-       , liveAuth
-       , APIType (..)
-       , AccessToken (..)
-       , AccountID (..)
-       , Side (..)
-       , InstrumentText
-       , InstrumentName (..)
-       , AccountUnits (..)
-       , Currency (..)
-       ) where
+  ( OandaEnv
+  , apiType
+  , accessToken
+  , practiceAuth
+  , liveAuth
+  , APIType (..)
+  , AccessToken (..)
+  , AccountID (..)
+  , Side (..)
+  , InstrumentText
+  , InstrumentName (..)
+  , AccountUnits (..)
+  , Currency (..)
+  ) where
 
 import qualified Data.ByteString as BS
 import OANDA.Internal.Import
@@ -58,22 +54,13 @@ newtype AccountID = AccountID { unAccountID :: String }
 data Side
   = Buy
   | Sell
-  deriving (Generic)
-
-sideJSONTagModifier :: String -> String
-sideJSONTagModifier "Buy" = "buy"
-sideJSONTagModifier "Sell" = "sell"
-sideJSONTagModifier s = s
+  deriving (Eq)
 
 instance Show Side where
   show Buy = "buy"
   show Sell = "sell"
 
-instance ToJSON Side where
-  toJSON = genericToJSON $ defaultOptions { constructorTagModifier = sideJSONTagModifier }
-
-instance FromJSON Side where
-  parseJSON = genericParseJSON $ defaultOptions { constructorTagModifier = sideJSONTagModifier }
+deriveJSON (defaultOptions { constructorTagModifier = map toLower }) ''Side
 
 type InstrumentText = Text
 

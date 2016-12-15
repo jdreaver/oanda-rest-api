@@ -36,7 +36,6 @@ dependencies:
 
 default-extensions:
   - CPP
-  - DeriveGeneric
   - GeneralizedNewtypeDeriving
   - OverloadedStrings
   - RecordWildCards

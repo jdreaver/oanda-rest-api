@@ -12,7 +12,4 @@ import OANDA.Internal as X
   , makeOandaStreamingRequest
   )
 import OANDA.Orders as X
-import OANDA.Positions as X
-import OANDA.Rates as X
-import OANDA.Trades as X
 import OANDA.Transactions as X

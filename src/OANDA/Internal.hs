@@ -1,7 +1,3 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-
 -- | Utility functions.
 
 module OANDA.Internal
