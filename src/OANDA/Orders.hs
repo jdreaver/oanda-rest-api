@@ -7,127 +7,7 @@ import Data.List (intercalate)
 
 import OANDA.Instrument
 import OANDA.Internal hiding (intercalate)
-
-newtype OrderID = OrderID { unOrderID :: Text }
-  deriving (Show, Eq, ToJSON, FromJSON)
-
-newtype TransactionID = TransactionID { unTransactionID :: Text }
-  deriving (Show, Eq, ToJSON, FromJSON)
-
-newtype TradeID = TradeID { unTradeID :: Text }
-  deriving (Show, Eq, ToJSON, FromJSON)
-
-data OrderType
-  = MARKET
-  | LIMIT
-  | STOP
-  | MARKET_IF_TOUCHED
-  | TAKE_PROFIT
-  | STOP_LOSS
-  | TRAILING_STOP_LOSS
-  deriving (Show, Eq)
-
-deriveJSON defaultOptions ''OrderType
-
-data OrderState
-  = PENDING
-  | FILLED
-  | TRIGGERED
-  | CANCELLED
-  deriving (Show, Eq)
-
-deriveJSON defaultOptions ''OrderState
-
-data ClientExtensions
-  = ClientExtensions
-  { clientExtensionsID :: Text
-  , clientExtensionsTag :: Text
-  , clientExtensionsComment :: Text
-  } deriving (Show)
-
-deriveJSON (unPrefix "clientExtensions") ''ClientExtensions
-
-data TimeInForce
-  = GTC
-  | GTD
-  | GFD
-  | FOK
-  | IOC
-  deriving (Show, Eq)
-
-deriveJSON defaultOptions ''TimeInForce
-
-data OrderPositionFill
-  = OPEN_ONLY
-  | REDUCE_FIRST
-  | REDUCE_ONLY
-  | POSITION_DEFAULT
-  deriving (Show, Eq)
-
-deriveJSON defaultOptions ''OrderPositionFill
-
-data MarketOrderPositionCloseout
-  = MarketOrderPositionCloseout
-  { marketOrderPositionCloseoutInstrument :: InstrumentName
-  , marketOrderPositionCloseoutUnits :: Text
-  } deriving (Show)
-
-deriveJSON (unPrefix "marketOrderPositionCloseout") ''MarketOrderPositionCloseout
-
-data MarketOrderTradeClose
-  = MarketOrderTradeClose
-  { marketOrderTradeCloseTradeID :: TradeID
-  , marketOrderTradeCloseClientTradeID :: Text
-  , marketOrderTradeCloseUnits :: Text
-  } deriving (Show)
-
-deriveJSON (unPrefix "marketOrderTradeClose") ''MarketOrderTradeClose
-
-data MarketOrderMarginCloseout
-  = MarketOrderMarginCloseout
-  { marketOrderMarginCloseoutReason :: Text
-  } deriving (Show)
-
-deriveJSON (unPrefix "marketOrderMarginCloseout") ''MarketOrderMarginCloseout
-
-data MarketOrderDelayedTradeClose
-  = MarketOrderDelayedTradeClose
-  { marketOrderDelayedTradeCloseTradeID :: TradeID
-  , marketOrderDelayedTradeCloseClientTradeID :: Text
-  , marketOrderDelayedTradeCloseSourceTransactionID :: TransactionID
-  } deriving (Show)
-
-deriveJSON (unPrefix "marketOrderDelayedTradeClose") ''MarketOrderDelayedTradeClose
-
-data TakeProfitDetails
-  = TakeProfitDetails
-  { takeProfitDetailsPrice :: Text
-  , takeProfitDetailsTimeInForce :: TimeInForce
-  , takeProfitDetailsGtdTime :: ZonedTime
-  , takeProfitDetailsClientExtensions :: Maybe ClientExtensions
-  } deriving (Show)
-
-deriveJSON (unPrefix "takeProfitDetails") ''TakeProfitDetails
-
-data StopLossDetails
-  = StopLossDetails
-  { stopLossDetailsPrice :: Text
-  , stopLossDetailsTimeInForce :: TimeInForce
-  , stopLossDetailsGtdTime :: ZonedTime
-  , stopLossDetailsClientExtensions :: Maybe ClientExtensions
-  } deriving (Show)
-
-deriveJSON (unPrefix "stopLossDetails") ''StopLossDetails
-
-data TrailingStopLossDetails
-  = TrailingStopLossDetails
-  { trailingStopLossDetailsDistance :: Text
-  , trailingStopLossDetailsTimeInForce :: TimeInForce
-  , trailingStopLossDetailsGtdTime :: ZonedTime
-  , trailingStopLossDetailsClientExtensions :: Maybe ClientExtensions
-  } deriving (Show)
-
-deriveJSON (unPrefix "trailingStopLossDetails") ''TrailingStopLossDetails
+import OANDA.Transactions
 
 data Order
   = Order
@@ -205,3 +85,68 @@ oandaOrders env (AccountID accountId) OrdersArgs{..} = OANDARequest request
       , ("count",) . Just . fromString . show <$> _ordersArgsCount
       , ("beforeID",) . Just . fromString . show . unOrderID <$> _ordersArgsBeforeID
       ]
+
+data OrderRequest
+  = OrderRequest
+  { _orderRequestType :: OrderType
+  , _orderRequestClientExtensions :: Maybe ClientExtensions
+  , _orderRequestInstrument :: Maybe InstrumentName
+  , _orderRequestUnits :: Maybe Decimal
+  , _orderRequestTimeInForce :: Maybe TimeInForce
+  , _orderRequestPrice :: Maybe PriceValue
+  , _orderRequestPriceBound :: Maybe PriceValue
+  , _orderRequestPositionFill :: Maybe OrderPositionFill
+  , _orderRequestTradeID :: Maybe TradeID
+  , _orderRequestClientTradeID :: Maybe Text
+  , _orderRequestDistance :: Maybe PriceValue
+  , _orderRequestTakeProfitOnFill :: Maybe TakeProfitDetails
+  , _orderRequestStopLossOnFill :: Maybe StopLossDetails
+  , _orderRequestTrailingStopLossOnFill :: Maybe TrailingStopLossDetails
+  , _orderRequestTradeClientExtensions :: Maybe ClientExtensions
+  , _orderRequestGtdTime :: Maybe ZonedTime
+  } deriving (Show)
+
+makeLenses ''OrderRequest
+
+orderRequest :: OrderType -> OrderRequest
+orderRequest orderType =
+  OrderRequest
+  { _orderRequestType = orderType
+  , _orderRequestClientExtensions = Nothing
+  , _orderRequestInstrument = Nothing
+  , _orderRequestUnits = Nothing
+  , _orderRequestTimeInForce = Nothing
+  , _orderRequestPrice = Nothing
+  , _orderRequestPriceBound = Nothing
+  , _orderRequestPositionFill = Nothing
+  , _orderRequestTradeID = Nothing
+  , _orderRequestClientTradeID = Nothing
+  , _orderRequestDistance = Nothing
+  , _orderRequestTakeProfitOnFill = Nothing
+  , _orderRequestStopLossOnFill = Nothing
+  , _orderRequestTrailingStopLossOnFill = Nothing
+  , _orderRequestTradeClientExtensions = Nothing
+  , _orderRequestGtdTime = Nothing
+  }
+
+deriveJSON (unPrefix "_orderRequest") ''OrderRequest
+
+data CreateOrderResponse
+  = CreateOrderResponse
+  { createOrderResponseOrderCreateTransaction :: Transaction
+  , createOrderResponseOrderFillTransaction :: Maybe Transaction
+  , createOrderResponseOrderCancelTransaction :: Maybe Transaction
+  , createOrderResponseOrderReissueTransaction :: Maybe Transaction
+  , createOrderResponseOrderReissueRejectTransaction :: Maybe Transaction
+  , createOrderResponseRelatedTransactionIDs :: [TransactionID]
+  , createOrderResponseLastTransactionID :: TransactionID
+  } deriving (Show)
+
+deriveJSON (unPrefix "createOrderResponse") ''CreateOrderResponse
+
+oandaCreateOrder :: OandaEnv -> AccountID -> OrderRequest -> OANDARequest CreateOrderResponse
+oandaCreateOrder env (AccountID accountId) orderRequest' = OANDARequest request
+  where
+    request =
+      baseApiRequest env "POST" ("/v3/accounts/" ++ accountId ++ "/orders")
+      & setRequestBodyJSON (object ["order" .= orderRequest'])

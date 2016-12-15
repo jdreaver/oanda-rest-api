@@ -33,7 +33,9 @@ import System.Locale as X (defaultTimeLocale)
 -- | Aeson Options that remove the prefix from fields
 unPrefix :: String -> Options
 unPrefix prefix = defaultOptions
-  { fieldLabelModifier = unCapitalize . dropPrefix prefix }
+  { fieldLabelModifier = unCapitalize . dropPrefix prefix
+  , omitNothingFields = True
+  }
 
 -- | Lower case leading character
 unCapitalize :: String -> String
