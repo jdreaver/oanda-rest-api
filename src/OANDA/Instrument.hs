@@ -4,6 +4,7 @@
 
 module OANDA.Instrument
   ( CandlestickGranularity (..)
+  , granularityFromDiffTime
   , granularityToDiffTime
   , WeeklyAlignment (..)
   , PriceValue (..)
@@ -53,6 +54,32 @@ data CandlestickGranularity
   deriving (Show)
 
 deriveJSON defaultOptions ''CandlestickGranularity
+
+granularityFromDiffTime :: NominalDiffTime -> Maybe CandlestickGranularity
+granularityFromDiffTime = go . toSeconds'
+  where
+    go 5 = Just S5
+    go 10 = Just S10
+    go 15 = Just S15
+    go 30 = Just S30
+    go 60 = Just M1
+    go 120 = Just M2
+    go 240 = Just M4
+    go 300 = Just M5
+    go 600 = Just M10
+    go 900 = Just M15
+    go 1800 = Just M30
+    go 3600 = Just H1
+    go 7200 = Just H2
+    go 10800 = Just H3
+    go 14400 = Just H4
+    go 21600 = Just H6
+    go 28800 = Just H8
+    go 43200 = Just H12
+    go 86400 = Just D
+    go 604800 = Just W
+    -- go _ = Just M  -- Not well-defined for a month
+    go _ = Nothing
 
 -- | Utility function to convert Granularity to NominalDiffTime. __NOTE__: The
 -- conversion from month to NominalDiffTime is not correct in general; we just
