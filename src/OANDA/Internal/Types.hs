@@ -9,7 +9,6 @@ module OANDA.Internal.Types
   , APIType (..)
   , AccessToken (..)
   , AccountID (..)
-  , Side (..)
   , InstrumentText
   , InstrumentName (..)
   , AccountUnits (..)
@@ -49,18 +48,6 @@ newtype AccessToken = AccessToken { unAccessToken :: BS.ByteString }
 -- | Integer representing the Account ID of an account
 newtype AccountID = AccountID { unAccountID :: String }
   deriving (Show, FromJSON, ToJSON)
-
--- | Used when reporting a position in the API
-data Side
-  = Buy
-  | Sell
-  deriving (Eq)
-
-instance Show Side where
-  show Buy = "buy"
-  show Sell = "sell"
-
-deriveJSON (defaultOptions { constructorTagModifier = map toLower }) ''Side
 
 type InstrumentText = Text
 
