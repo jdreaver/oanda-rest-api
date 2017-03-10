@@ -8,6 +8,10 @@ module OANDA.Accounts
   , AccountsResponse (..)
   , oandaAccountDetails
   , AccountDetailsResponse (..)
+  , oandaAccountChanges
+  , AccountChangesResponse (..)
+  , AccountChanges (..)
+  , AccountChangesState (..)
   , Account (..)
   , Position (..)
   , PositionSide (..)
@@ -45,8 +49,8 @@ data PositionSide =
   , positionSideAveragePrice :: Maybe PriceValue
   , positionSideTradeIDs :: Maybe [TradeID]
   , positionSidePl :: AccountUnits
-  , positionSideUnrealizedPL :: AccountUnits
-  , positionSideResettablePL :: AccountUnits
+  , positionSideUnrealizedPL :: Maybe AccountUnits
+  , positionSideResettablePL :: Maybe AccountUnits
   } deriving (Show)
 
 deriveJSON (unPrefix "positionSide") ''PositionSide
@@ -55,8 +59,8 @@ data Position =
   Position
   { positionInstrument :: InstrumentName
   , positionPl :: AccountUnits
-  , positionUnrealizedPL :: AccountUnits
-  , positionResettablePL :: AccountUnits
+  , positionUnrealizedPL :: Maybe AccountUnits
+  , positionResettablePL :: Maybe AccountUnits
   , positionLong :: PositionSide
   , positionShort :: PositionSide
   } deriving (Show)
@@ -116,8 +120,61 @@ oandaAccountDetails env (AccountID accountId) = OANDARequest request
     request =
       baseApiRequest env "GET" ("/v3/accounts/" ++ accountId)
 
+data AccountChanges =
+  AccountChanges
+  { accountChangesOrdersCreated :: [Order]
+  , accountChangesOrdersCancelled :: [Order]
+  , accountChangesOrdersFilled :: [Order]
+  , accountChangesOrdersTriggered :: [Order]
+  -- TODO: accountChangesTradesOpened :: [TradeSummary]
+  -- TODO: accountChangesTradesReduced :: [TradeSummary]
+  -- TODO: accountChangesTradesClosed :: [TradeSummary]
+  , accountChangesPositions :: [Position]
+  , accountChangesTransactions :: [Transaction]
+  } deriving (Show)
+
+deriveJSON (unPrefix "accountChanges") ''AccountChanges
+
+data AccountChangesState =
+  AccountChangesState
+  { accountChangesStateUnrealizedPL :: AccountUnits
+  -- TODO: accountChangesStateNAV :: AccountUnits
+  , accountChangesStateMarginUsed :: AccountUnits
+  , accountChangesStateMarginAvailable :: AccountUnits
+  , accountChangesStatePositionValue :: AccountUnits
+  , accountChangesStateMarginCloseoutUnrealizedPL :: Maybe AccountUnits
+  , accountChangesStateMarginCloseoutNAV :: Maybe AccountUnits
+  , accountChangesStateMarginCloseoutMarginUsed :: Maybe AccountUnits
+  , accountChangesStateMarginCloseoutPercent :: Maybe Decimal
+  , accountChangesStateMarginCloseoutPositionValue :: Maybe Decimal
+  , accountChangesStateWithdrawalLimit :: AccountUnits
+  , accountChangesStateMarginCallMarginUsed :: AccountUnits
+  , accountChangesStateMarginCallPercent :: Decimal
+  -- TODO: accountChangesStateOrders :: [DynamicOrderState]
+  -- TODO: accountChangesStateTrades :: [CalculatedTradeState]
+  -- TODO: accountChangesStatePositions :: [CalculatedPositionState]
+  } deriving (Show)
+
+deriveJSON (unPrefix "accountChangesState") ''AccountChangesState
+
+data AccountChangesResponse =
+  AccountChangesResponse
+  { accountChangesResponseChanges :: AccountChanges
+  , accountChangesResponseState :: AccountChangesState
+  , accountChangesResponseLastTransactionID :: TransactionID
+  } deriving (Show)
+
+deriveJSON (unPrefix "accountChangesResponse") ''AccountChangesResponse
+
+oandaAccountChanges :: OandaEnv -> AccountID -> TransactionID -> OANDARequest AccountChangesResponse
+oandaAccountChanges env (AccountID accountId) (TransactionID sinceId) = OANDARequest request
+  where
+    request =
+      baseApiRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/changes")
+      & setRequestQueryString params
+    params = [("sinceTransactionID", Just (encodeUtf8 sinceId))]
+
 -- TODO:
 -- GET /v3/accounts/{AccoundId}/summary
 -- GET /v3/accounts/{AccoundId}/instruments
 -- PATCH /v3/accounts/{AccoundId}/configuration
--- GET /v3/accounts/{AccoundId}/changes

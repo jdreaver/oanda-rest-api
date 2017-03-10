@@ -195,7 +195,8 @@ deriveJSON (unPrefix "openTradeFinancing") ''OpenTradeFinancing
 
 data PositionFinancing
   = PositionFinancing
-  { positionFinancingInstrumentID :: InstrumentName
+  { -- BUG: Their docs say instrumentID but the field is actually called instrument
+    positionFinancingInstrument :: InstrumentName
   , positionFinancingFinancing :: AccountUnits
   , positionFinancingOpenTradeFinancings :: [OpenTradeFinancing]
   } deriving (Show)
