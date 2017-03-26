@@ -75,14 +75,14 @@ data Account =
   , accountCurrency :: Currency
   , accountBalance :: AccountUnits
   , accountCreatedByUserID :: Integer
-  , accountCreatedTime :: ZonedTime
+  , accountCreatedTime :: OandaZonedTime
   , accountPl :: AccountUnits
   , accountResettablePL :: AccountUnits
-  , accountResettablePLTime :: Maybe ZonedTime
+  , accountResettablePLTime :: Maybe OandaZonedTime
   , accountMarginRate :: Decimal
-  , accountMarginCallEnterTime :: Maybe ZonedTime
+  , accountMarginCallEnterTime :: Maybe OandaZonedTime
   , accountMarginCallExtensionCount :: Maybe Integer
-  , accountLastMarginCallExtensionTime :: Maybe ZonedTime
+  , accountLastMarginCallExtensionTime :: Maybe OandaZonedTime
   , accountOpenTradeCount :: Integer
   , accountOpenPositionCount :: Integer
   , accountPendingOrderCount :: Integer

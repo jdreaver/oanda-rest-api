@@ -21,7 +21,7 @@ deriveJSON (unPrefix "priceBucket") ''PriceBucket
 data Price
   = Price
   { priceInstrument :: InstrumentName
-  , priceTime :: ZonedTime
+  , priceTime :: OandaZonedTime
   , priceStatus :: Text
   , priceBids :: [PriceBucket]
   , priceAsks :: [PriceBucket]
@@ -82,7 +82,7 @@ pricingStreamArgs instruments =
 
 data PricingHeartbeat
   = PricingHeartbeat
-  { pricingHeartbeatTime :: ZonedTime
+  { pricingHeartbeatTime :: OandaZonedTime
   } deriving (Show)
 
 deriveJSON (unPrefix "pricingHeartbeat") ''PricingHeartbeat

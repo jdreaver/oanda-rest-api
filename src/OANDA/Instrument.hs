@@ -133,7 +133,7 @@ deriveJSON (unPrefix "candlestickData") ''CandlestickData
 
 data Candlestick
   = Candlestick
-  { candlestickTime :: ZonedTime
+  { candlestickTime :: OandaZonedTime
   , candlestickBid :: Maybe CandlestickData
   , candlestickAsk :: Maybe CandlestickData
   , candlestickMid :: Maybe CandlestickData

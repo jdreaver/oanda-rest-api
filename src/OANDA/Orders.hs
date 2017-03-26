@@ -12,7 +12,7 @@ import OANDA.Transactions
 data Order
   = Order
   { orderId :: OrderID
-  , orderCreateTime :: ZonedTime
+  , orderCreateTime :: OandaZonedTime
   , orderState :: OrderState
   , orderClientExtensions :: Maybe ClientExtensions
   , orderType :: OrderType
@@ -36,13 +36,13 @@ data Order
   , orderTrailingStopLossOnFill :: Maybe TrailingStopLossDetails
   , orderTradeClientExtensions :: Maybe ClientExtensions
   , orderFillingTransactionID :: Maybe TransactionID
-  , orderFilledTime :: Maybe ZonedTime
+  , orderFilledTime :: Maybe OandaZonedTime
   , orderTradeOpenedID :: Maybe TradeID
   , orderTradeReducedID :: Maybe TradeID
   , orderTradeClosedIDs :: Maybe [TradeID]
   , orderCancellingTransactionID :: Maybe TransactionID
-  , orderCancelledTime :: Maybe ZonedTime
-  , orderGtdTime :: Maybe ZonedTime
+  , orderCancelledTime :: Maybe OandaZonedTime
+  , orderGtdTime :: Maybe OandaZonedTime
   , orderReplacesOrderID :: Maybe OrderID
   , orderReplacedByOrderID :: Maybe OrderID
   } deriving (Show)

@@ -4,7 +4,7 @@
 module OANDA.Internal.Import
   ( module X
   , unPrefix
-  , parseIntFromString
+  , parseJSONFromString
   ) where
 
 import Control.Lens as X
@@ -55,8 +55,8 @@ dropPrefix prefix input = go prefix input
 
     contextual msg = "dropPrefix: " <> msg <> ". " <> prefix <> " " <> input
 
-parseIntFromString :: Value -> Parser Int
-parseIntFromString v = do
+parseJSONFromString :: (Read a) => Value -> Parser a
+parseJSONFromString v = do
   numString <- parseJSON v
   case readMaybe (numString :: String) of
     Nothing -> fail $ "Invalid number for TransactionID: " ++ show v

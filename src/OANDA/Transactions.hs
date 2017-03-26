@@ -15,7 +15,7 @@ instance ToJSON OrderID where
   toJSON = toJSON . show . unOrderID
 
 instance FromJSON OrderID where
-  parseJSON = fmap OrderID . parseIntFromString
+  parseJSON = fmap OrderID . parseJSONFromString
 
 newtype TransactionID = TransactionID { unTransactionID :: Int }
   deriving (Show, Eq)
@@ -24,7 +24,7 @@ instance ToJSON TransactionID where
   toJSON = toJSON . show . unTransactionID
 
 instance FromJSON TransactionID where
-  parseJSON = fmap TransactionID . parseIntFromString
+  parseJSON = fmap TransactionID . parseJSONFromString
 
 newtype TradeID = TradeID { unTradeID :: Int }
   deriving (Show, Eq)
@@ -33,7 +33,7 @@ instance ToJSON TradeID where
   toJSON = toJSON . show . unTradeID
 
 instance FromJSON TradeID where
-  parseJSON = fmap TradeID . parseIntFromString
+  parseJSON = fmap TradeID . parseJSONFromString
 
 data OrderType
   = MARKET
@@ -121,7 +121,7 @@ data TakeProfitDetails
   = TakeProfitDetails
   { takeProfitDetailsPrice :: Text
   , takeProfitDetailsTimeInForce :: TimeInForce
-  , takeProfitDetailsGtdTime :: ZonedTime
+  , takeProfitDetailsGtdTime :: OandaZonedTime
   , takeProfitDetailsClientExtensions :: Maybe ClientExtensions
   } deriving (Show)
 
@@ -131,7 +131,7 @@ data StopLossDetails
   = StopLossDetails
   { stopLossDetailsPrice :: Text
   , stopLossDetailsTimeInForce :: TimeInForce
-  , stopLossDetailsGtdTime :: ZonedTime
+  , stopLossDetailsGtdTime :: OandaZonedTime
   , stopLossDetailsClientExtensions :: Maybe ClientExtensions
   } deriving (Show)
 
@@ -141,7 +141,7 @@ data TrailingStopLossDetails
   = TrailingStopLossDetails
   { trailingStopLossDetailsDistance :: Text
   , trailingStopLossDetailsTimeInForce :: TimeInForce
-  , trailingStopLossDetailsGtdTime :: ZonedTime
+  , trailingStopLossDetailsGtdTime :: OandaZonedTime
   , trailingStopLossDetailsClientExtensions :: Maybe ClientExtensions
   } deriving (Show)
 
@@ -226,7 +226,7 @@ deriveJSON (unPrefix "positionFinancing") ''PositionFinancing
 data Transaction = Transaction
   { -- Common to all transactions
     transactionId :: TransactionID
-  , transactionTime :: ZonedTime
+  , transactionTime :: OandaZonedTime
   , transactionAccountID :: AccountID
   , transactionUserID :: Integer
   , transactionBatchID :: TransactionID
@@ -260,7 +260,7 @@ data Transaction = Transaction
   , transactionStopLossOnFill :: Maybe StopLossDetails
   , transactionTrailingStopLossOnFill :: Maybe TrailingStopLossDetails
   , transactionTradeClientExtensions :: Maybe ClientExtensions
-  , transactionGtdTime :: Maybe ZonedTime
+  , transactionGtdTime :: Maybe OandaZonedTime
   , transactionReplacesOrderID :: Maybe OrderID
   , transactionReplacedOrderCancelTransactionID :: Maybe TransactionID
   , transactionIntendedReplacesOrderID :: Maybe OrderID
@@ -303,7 +303,7 @@ oandaTransactionsSinceID env (AccountID accountId) (TransactionID transId) = OAN
 data TransactionHeartbeat
   = TransactionHeartbeat
   { transactionHeartbeatLastTransactionID :: TransactionID
-  , transactionHeartbeatTime :: ZonedTime
+  , transactionHeartbeatTime :: OandaZonedTime
   } deriving (Show)
 
 deriveJSON (unPrefix "transactionHeartbeat") ''TransactionHeartbeat
