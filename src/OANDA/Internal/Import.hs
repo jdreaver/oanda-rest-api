@@ -4,6 +4,7 @@
 module OANDA.Internal.Import
   ( module X
   , unPrefix
+  , parseIntFromString
   ) where
 
 import Control.Lens as X
@@ -28,6 +29,7 @@ import Data.Thyme as X
 import Data.Thyme.Format.Aeson as X ()
 import Network.HTTP.Simple as X
 import System.Locale as X (defaultTimeLocale)
+import Text.Read (readMaybe)
 
 -- | Aeson Options that remove the prefix from fields
 unPrefix :: String -> Options
@@ -52,3 +54,10 @@ dropPrefix prefix input = go prefix input
       | otherwise = error $ contextual $ "not equal: " <>  (p:preRest)  <> " " <> (c:cRest)
 
     contextual msg = "dropPrefix: " <> msg <> ". " <> prefix <> " " <> input
+
+parseIntFromString :: Value -> Parser Int
+parseIntFromString v = do
+  numString <- parseJSON v
+  case readMaybe (numString :: String) of
+    Nothing -> fail $ "Invalid number for TransactionID: " ++ show v
+    Just n -> return n

@@ -17,6 +17,7 @@ module OANDA.Accounts
   , PositionSide (..)
   ) where
 
+import qualified Data.ByteString.Char8 as BS8
 import qualified Data.Vector as V
 
 import OANDA.Instrument
@@ -172,7 +173,7 @@ oandaAccountChanges env (AccountID accountId) (TransactionID sinceId) = OANDAReq
     request =
       baseApiRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/changes")
       & setRequestQueryString params
-    params = [("sinceTransactionID", Just (encodeUtf8 sinceId))]
+    params = [("sinceTransactionID", Just (BS8.pack $ show sinceId))]
 
 -- TODO:
 -- GET /v3/accounts/{AccoundId}/summary

@@ -4,16 +4,36 @@
 
 module OANDA.Transactions where
 
+import qualified Data.ByteString.Char8 as BS8
+
 import OANDA.Internal
 
-newtype OrderID = OrderID { unOrderID :: Text }
-  deriving (Show, Eq, ToJSON, FromJSON)
+newtype OrderID = OrderID { unOrderID :: Int }
+  deriving (Show, Eq)
 
-newtype TransactionID = TransactionID { unTransactionID :: Text }
-  deriving (Show, Eq, ToJSON, FromJSON)
+instance ToJSON OrderID where
+  toJSON = toJSON . show . unOrderID
 
-newtype TradeID = TradeID { unTradeID :: Text }
-  deriving (Show, Eq, ToJSON, FromJSON)
+instance FromJSON OrderID where
+  parseJSON = fmap OrderID . parseIntFromString
+
+newtype TransactionID = TransactionID { unTransactionID :: Int }
+  deriving (Show, Eq)
+
+instance ToJSON TransactionID where
+  toJSON = toJSON . show . unTransactionID
+
+instance FromJSON TransactionID where
+  parseJSON = fmap TransactionID . parseIntFromString
+
+newtype TradeID = TradeID { unTradeID :: Int }
+  deriving (Show, Eq)
+
+instance ToJSON TradeID where
+  toJSON = toJSON . show . unTradeID
+
+instance FromJSON TradeID where
+  parseJSON = fmap TradeID . parseIntFromString
 
 data OrderType
   = MARKET
@@ -263,7 +283,7 @@ deriveJSON (unPrefix "transaction") ''Transaction
 
 oandaTransaction :: OandaEnv -> AccountID -> TransactionID -> OANDARequest Transaction
 oandaTransaction env (AccountID accountId) (TransactionID transId) =
-  OANDARequest $ baseApiRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/transactions/" ++ unpack transId)
+  OANDARequest $ baseApiRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/transactions/" ++ show transId)
 
 data TransactionsSinceIDResponse
   = TransactionsSinceIDResponse
@@ -278,7 +298,7 @@ oandaTransactionsSinceID env (AccountID accountId) (TransactionID transId) = OAN
   where
     request =
       baseApiRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/transactions/sinceid")
-      & setRequestQueryString [("id", Just $ encodeUtf8 transId)]
+      & setRequestQueryString [("id", Just $ BS8.pack $ show transId)]
 
 data TransactionHeartbeat
   = TransactionHeartbeat
