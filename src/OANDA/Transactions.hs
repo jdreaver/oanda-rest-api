@@ -246,6 +246,7 @@ data Transaction = Transaction
   , transactionAccountBalance :: Maybe AccountUnits
   , transactionInstrument :: Maybe InstrumentText
   , transactionUnits :: Maybe Decimal
+  , transactionPrice :: Maybe Decimal
   , transactionTimeInForce :: Maybe TimeInForce
   , transactionPriceBound :: Maybe Text
   , transactionPositionFill :: Maybe Text
