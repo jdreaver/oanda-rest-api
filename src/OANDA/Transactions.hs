@@ -225,12 +225,12 @@ deriveJSON (unPrefix "positionFinancing") ''PositionFinancing
 
 data Transaction = Transaction
   { -- Common to all transactions
-    transactionId :: TransactionID
-  , transactionTime :: OandaZonedTime
-  , transactionAccountID :: AccountID
-  , transactionUserID :: Integer
-  , transactionBatchID :: TransactionID
-  , transactionType :: TransactionType
+    transactionId :: Maybe TransactionID
+  , transactionTime :: Maybe OandaZonedTime
+  , transactionAccountID :: Maybe AccountID
+  , transactionUserID :: Maybe Integer
+  , transactionBatchID :: Maybe TransactionID
+  , transactionType :: Maybe TransactionType
 
   -- Specific to individual transactions
   , transactionDivisionID :: Maybe Integer
@@ -328,3 +328,85 @@ instance FromJSON TransactionsStreamResponse where
 oandaTransactionStream :: OandaEnv -> AccountID -> OANDAStreamingRequest TransactionsStreamResponse
 oandaTransactionStream env (AccountID accountId) =
   OANDAStreamingRequest $ baseStreamingRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/transactions/stream")
+
+
+-- | Order to modify an existing Trade (i.e. Transaction)
+data TradePrice = TradePrice { tradePrice :: Text } 
+  deriving (Show)
+deriveJSON (unPrefix "trade") ''TradePrice
+
+data TradeTrailingStop = TradeTrailingStop { tradeTrailingStopDistance :: Decimal}
+    deriving (Show)
+deriveJSON (unPrefix "tradeTrailingStop") ''TradeTrailingStop
+
+data TradeOrder = TradeOrder { tradeOrderTakeProfit    :: Maybe TradePrice
+                             , tradeOrderStopLoss      :: Maybe TradePrice
+                             , tradeOrderTraillingStop :: Maybe TradeTrailingStop
+                             } deriving (Show)
+deriveJSON (unPrefix "tradeOrder") ''TradeOrder
+
+data OrderReason = CLIENT_REQUEST_REPLACED
+    | REPLACEMENT
+    | CLIENT_ORDER
+    deriving (Show, Eq)
+deriveJSON defaultOptions ''OrderReason
+
+data TransactionTrigger = TRIGGER_DEFAULT 
+    deriving (Show, Eq)
+deriveJSON defaultOptions ''TransactionTrigger
+
+data OrderTransaction = OrderTransaction
+    { orderTransaction_Type                    :: Maybe TransactionType
+    , orderTransaction_OrderID                 :: Maybe OrderID
+    , orderTransaction_TradeID                 :: Maybe TransactionID
+    , orderTransaction_CancellingTransactionID :: Maybe TransactionID
+    , orderTransaction_ReplacedByOrderID       :: Maybe OrderID
+    , orderTransaction_Reason                  :: Maybe OrderReason
+    , orderTransaction_ID                      :: Maybe TransactionID
+    , orderTransaction_UserID                  :: Maybe Integer
+    , orderTransaction_AccountID               :: Maybe AccountID
+    , orderTransaction_BatchID                 :: Maybe TransactionID
+    , orderTransaction_TimeInForce             :: Maybe TimeInForce
+    , orderTransaction_RequestID               :: Maybe String
+    , orderTransaction_Time                    :: Maybe OandaZonedTime
+    , orderTransaction_Price                   :: Maybe Text
+    , orderTransaction_Distance                :: Maybe Decimal
+    } deriving (Show)
+deriveJSON (unPrefix "orderTransaction_") ''OrderTransaction
+
+data OrderTransactionResponse =  OrderTransactionResponse
+    { orderTransactionResponse_TakeProfitOrderCancelTransaction :: Maybe OrderTransaction
+    , orderTransactionResponse_TakeProfitOrderTransaction       :: Maybe OrderTransaction
+    , orderTransactionResponse_StopLossOrderTransaction         :: Maybe OrderTransaction
+    , orderTransactionResponse_TrailingStopLossOrderTransaction :: Maybe OrderTransaction
+    , orderTransactionResponse_RelatedTransactionIDs            :: Maybe [TransactionID]
+    , orderTransactionResponse_LastTransactionID                :: Maybe TransactionID
+    } deriving (Show)
+deriveJSON (unPrefix "orderTransactionResponse_") ''OrderTransactionResponse
+
+oandaModifyTrade :: OandaEnv -> AccountID -> TransactionID -> TradeOrder -> OANDARequest OrderTransactionResponse
+oandaModifyTrade env (AccountID accountId) transactionID tradeOrder = OANDARequest request
+  where
+    request =
+      baseApiRequest env "PUT" ("/v3/accounts/" ++ accountId 
+                                                ++ "/trades/" 
+                                                ++ transactionID' 
+                                                ++ "/orders"
+                               )
+      & setRequestBodyJSON tradeOrder
+    transactionID' = show $ unTransactionID transactionID
+
+
+-- | Cancel an existing transaction
+oandaCloseTrade :: OandaEnv -> AccountID -> TransactionID -> OANDARequest OrderTransactionResponse
+oandaCloseTrade env (AccountID accountId) transactionID = OANDARequest request
+  where
+    request =
+      baseApiRequest env "PUT" ("/v3/accounts/" ++ accountId 
+                                                ++ "/trades/" 
+                                                ++ transactionID' 
+                                                ++ "/close"
+                               )
+    transactionID' = show $ unTransactionID transactionID
+
+
