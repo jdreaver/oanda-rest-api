@@ -328,3 +328,84 @@ instance FromJSON TransactionsStreamResponse where
 oandaTransactionStream :: OandaEnv -> AccountID -> OANDAStreamingRequest TransactionsStreamResponse
 oandaTransactionStream env (AccountID accountId) =
   OANDAStreamingRequest $ baseStreamingRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/transactions/stream")
+
+-- | Order to modify an existing Trade (i.e. Transaction)
+data TradePrice = TradePrice { tradePrice :: Text } 
+  deriving (Show)
+deriveJSON (unPrefix "trade") ''TradePrice
+
+data TradeTrailingStop = TradeTrailingStop { tradeTrailingStopDistance :: Decimal}
+    deriving (Show)
+deriveJSON (unPrefix "tradeTrailingStop") ''TradeTrailingStop
+
+data TradeOrder = TradeOrder { tradeOrderTakeProfit    :: Maybe TradePrice
+                             , tradeOrderStopLoss      :: Maybe TradePrice
+                             , tradeOrderTraillingStop :: Maybe TradeTrailingStop
+                             } deriving (Show)
+deriveJSON (unPrefix "tradeOrder") ''TradeOrder
+
+data OrderReason = CLIENT_REQUEST_REPLACED
+    | REPLACEMENT
+    | CLIENT_ORDER
+    deriving (Show, Eq)
+deriveJSON defaultOptions ''OrderReason
+
+data TransactionTrigger = TRIGGER_DEFAULT 
+    deriving (Show, Eq)
+deriveJSON defaultOptions ''TransactionTrigger
+
+data OrderTransaction = OrderTransaction
+    { orderTransactionType                    :: Maybe TransactionType
+    , orderTransactionOrderID                 :: Maybe OrderID
+    , orderTransactionTradeID                 :: Maybe TransactionID
+    , orderTransactionCancellingTransactionID :: Maybe TransactionID
+    , orderTransactionReplacedByOrderID       :: Maybe OrderID
+    , orderTransactionReason                  :: Maybe OrderReason
+    , orderTransactionID                      :: Maybe TransactionID
+    , orderTransactionUserID                  :: Maybe Integer
+    , orderTransactionAccountID               :: Maybe AccountID
+    , orderTransactionBatchID                 :: Maybe TransactionID
+    , orderTransactionTimeInForce             :: Maybe TimeInForce
+    , orderTransactionRequestID               :: Maybe String
+    , orderTransactionTime                    :: Maybe OandaZonedTime
+    , orderTransactionPrice                   :: Maybe Text
+    , orderTransactionDistance                :: Maybe Decimal
+    } deriving (Show)
+deriveJSON (unPrefix "orderTransaction") ''OrderTransaction
+
+data OrderTransactionResponse =  OrderTransactionResponse
+    { orderTransactionResponseTakeProfitOrderCancelTransaction :: Maybe OrderTransaction
+    , orderTransactionResponseTakeProfitOrderTransaction       :: Maybe OrderTransaction
+    , orderTransactionResponseStopLossOrderTransaction         :: Maybe OrderTransaction
+    , orderTransactionResponseTrailingStopLossOrderTransaction :: Maybe OrderTransaction
+    , orderTransactionResponseRelatedTransactionIDs            :: Maybe [TransactionID]
+    , orderTransactionResponseLastTransactionID                :: Maybe TransactionID
+    } deriving (Show)
+deriveJSON (unPrefix "orderTransactionResponse") ''OrderTransactionResponse
+
+oandaModifyTrade :: OandaEnv -> AccountID -> TransactionID -> TradeOrder -> OANDARequest OrderTransactionResponse
+oandaModifyTrade env (AccountID accountId) transactionID tradeOrder = OANDARequest request
+  where
+    request =
+      baseApiRequest env "PUT" ("/v3/accounts/" ++ accountId 
+                                                ++ "/trades/" 
+                                                ++ transactionID' 
+                                                ++ "/orders"
+                               )
+      & setRequestBodyJSON tradeOrder
+    transactionID' = show $ unTransactionID transactionID
+
+
+-- | Cancel an existing transaction
+oandaCloseTrade :: OandaEnv -> AccountID -> TransactionID -> OANDARequest OrderTransactionResponse
+oandaCloseTrade env (AccountID accountId) transactionID = OANDARequest request
+  where
+    request =
+      baseApiRequest env "PUT" ("/v3/accounts/" ++ accountId 
+                                                ++ "/trades/" 
+                                                ++ transactionID' 
+                                                ++ "/close"
+                               )
+    transactionID' = show $ unTransactionID transactionID
+
+
