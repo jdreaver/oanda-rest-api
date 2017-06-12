@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+
+- Fix style suggestions for newer hlint
+
 ## 0.4.0
 
 - Migrated to the new v20 REST API
