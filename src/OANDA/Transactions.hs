@@ -9,7 +9,7 @@ import qualified Data.ByteString.Char8 as BS8
 import OANDA.Internal
 
 newtype OrderID = OrderID { unOrderID :: Int }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Ord, Num)
 
 instance ToJSON OrderID where
   toJSON = toJSON . show . unOrderID
@@ -18,7 +18,7 @@ instance FromJSON OrderID where
   parseJSON = fmap OrderID . parseJSONFromString
 
 newtype TransactionID = TransactionID { unTransactionID :: Int }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Ord, Num)
 
 instance ToJSON TransactionID where
   toJSON = toJSON . show . unTransactionID
@@ -27,7 +27,7 @@ instance FromJSON TransactionID where
   parseJSON = fmap TransactionID . parseJSONFromString
 
 newtype TradeID = TradeID { unTradeID :: Int }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Ord, Num)
 
 instance ToJSON TradeID where
   toJSON = toJSON . show . unTradeID
