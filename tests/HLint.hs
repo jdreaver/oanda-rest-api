@@ -9,6 +9,7 @@ arguments =
   , "src"
   , "tests"
   , "-i", "Use newtype instead of data"
+  , "-i", "Use module export list"
   ]
 
 main :: IO ()

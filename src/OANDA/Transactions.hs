@@ -9,7 +9,7 @@ import qualified Data.ByteString.Char8 as BS8
 import OANDA.Internal
 
 newtype OrderID = OrderID { unOrderID :: Int }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Ord, Num)
 
 instance ToJSON OrderID where
   toJSON = toJSON . show . unOrderID
@@ -18,7 +18,7 @@ instance FromJSON OrderID where
   parseJSON = fmap OrderID . parseJSONFromString
 
 newtype TransactionID = TransactionID { unTransactionID :: Int }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Ord, Num)
 
 instance ToJSON TransactionID where
   toJSON = toJSON . show . unTransactionID
@@ -27,7 +27,7 @@ instance FromJSON TransactionID where
   parseJSON = fmap TransactionID . parseJSONFromString
 
 newtype TradeID = TradeID { unTradeID :: Int }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Ord, Num)
 
 instance ToJSON TradeID where
   toJSON = toJSON . show . unTradeID
@@ -225,12 +225,12 @@ deriveJSON (unPrefix "positionFinancing") ''PositionFinancing
 
 data Transaction = Transaction
   { -- Common to all transactions
-    transactionId :: TransactionID
-  , transactionTime :: OandaZonedTime
-  , transactionAccountID :: AccountID
-  , transactionUserID :: Integer
-  , transactionBatchID :: TransactionID
-  , transactionType :: TransactionType
+    transactionId :: Maybe TransactionID
+  , transactionTime :: Maybe OandaZonedTime
+  , transactionAccountID :: Maybe AccountID
+  , transactionUserID :: Maybe Integer
+  , transactionBatchID :: Maybe TransactionID
+  , transactionType :: Maybe TransactionType
 
   -- Specific to individual transactions
   , transactionDivisionID :: Maybe Integer
@@ -355,6 +355,7 @@ data TransactionTrigger = TRIGGER_DEFAULT
 deriveJSON defaultOptions ''TransactionTrigger
 
 data OrderTransaction = OrderTransaction
+<<<<<<< HEAD
     { orderTransactionType                    :: Maybe TransactionType
     , orderTransactionOrderID                 :: Maybe OrderID
     , orderTransactionTradeID                 :: Maybe TransactionID
@@ -382,6 +383,35 @@ data OrderTransactionResponse =  OrderTransactionResponse
     , orderTransactionResponseLastTransactionID                :: Maybe TransactionID
     } deriving (Show)
 deriveJSON (unPrefix "orderTransactionResponse") ''OrderTransactionResponse
+=======
+    { orderTransaction_Type                    :: Maybe TransactionType
+    , orderTransaction_OrderID                 :: Maybe OrderID
+    , orderTransaction_TradeID                 :: Maybe TransactionID
+    , orderTransaction_CancellingTransactionID :: Maybe TransactionID
+    , orderTransaction_ReplacedByOrderID       :: Maybe OrderID
+    , orderTransaction_Reason                  :: Maybe OrderReason
+    , orderTransaction_ID                      :: Maybe TransactionID
+    , orderTransaction_UserID                  :: Maybe Integer
+    , orderTransaction_AccountID               :: Maybe AccountID
+    , orderTransaction_BatchID                 :: Maybe TransactionID
+    , orderTransaction_TimeInForce             :: Maybe TimeInForce
+    , orderTransaction_RequestID               :: Maybe String
+    , orderTransaction_Time                    :: Maybe OandaZonedTime
+    , orderTransaction_Price                   :: Maybe Text
+    , orderTransaction_Distance                :: Maybe Decimal
+    } deriving (Show)
+deriveJSON (unPrefix "orderTransaction_") ''OrderTransaction
+
+data OrderTransactionResponse =  OrderTransactionResponse
+    { orderTransactionResponse_TakeProfitOrderCancelTransaction :: Maybe OrderTransaction
+    , orderTransactionResponse_TakeProfitOrderTransaction       :: Maybe OrderTransaction
+    , orderTransactionResponse_StopLossOrderTransaction         :: Maybe OrderTransaction
+    , orderTransactionResponse_TrailingStopLossOrderTransaction :: Maybe OrderTransaction
+    , orderTransactionResponse_RelatedTransactionIDs            :: Maybe [TransactionID]
+    , orderTransactionResponse_LastTransactionID                :: Maybe TransactionID
+    } deriving (Show)
+deriveJSON (unPrefix "orderTransactionResponse_") ''OrderTransactionResponse
+>>>>>>> master
 
 oandaModifyTrade :: OandaEnv -> AccountID -> TransactionID -> TradeOrder -> OANDARequest OrderTransactionResponse
 oandaModifyTrade env (AccountID accountId) transactionID tradeOrder = OANDARequest request
