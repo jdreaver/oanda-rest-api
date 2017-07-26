@@ -329,6 +329,7 @@ oandaTransactionStream :: OandaEnv -> AccountID -> OANDAStreamingRequest Transac
 oandaTransactionStream env (AccountID accountId) =
   OANDAStreamingRequest $ baseStreamingRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/transactions/stream")
 
+
 -- | Order to modify an existing Trade (i.e. Transaction)
 data TradePrice = TradePrice { tradePrice :: Text } 
   deriving (Show)
@@ -355,35 +356,6 @@ data TransactionTrigger = TRIGGER_DEFAULT
 deriveJSON defaultOptions ''TransactionTrigger
 
 data OrderTransaction = OrderTransaction
-<<<<<<< HEAD
-    { orderTransactionType                    :: Maybe TransactionType
-    , orderTransactionOrderID                 :: Maybe OrderID
-    , orderTransactionTradeID                 :: Maybe TransactionID
-    , orderTransactionCancellingTransactionID :: Maybe TransactionID
-    , orderTransactionReplacedByOrderID       :: Maybe OrderID
-    , orderTransactionReason                  :: Maybe OrderReason
-    , orderTransactionID                      :: Maybe TransactionID
-    , orderTransactionUserID                  :: Maybe Integer
-    , orderTransactionAccountID               :: Maybe AccountID
-    , orderTransactionBatchID                 :: Maybe TransactionID
-    , orderTransactionTimeInForce             :: Maybe TimeInForce
-    , orderTransactionRequestID               :: Maybe String
-    , orderTransactionTime                    :: Maybe OandaZonedTime
-    , orderTransactionPrice                   :: Maybe Text
-    , orderTransactionDistance                :: Maybe Decimal
-    } deriving (Show)
-deriveJSON (unPrefix "orderTransaction") ''OrderTransaction
-
-data OrderTransactionResponse =  OrderTransactionResponse
-    { orderTransactionResponseTakeProfitOrderCancelTransaction :: Maybe OrderTransaction
-    , orderTransactionResponseTakeProfitOrderTransaction       :: Maybe OrderTransaction
-    , orderTransactionResponseStopLossOrderTransaction         :: Maybe OrderTransaction
-    , orderTransactionResponseTrailingStopLossOrderTransaction :: Maybe OrderTransaction
-    , orderTransactionResponseRelatedTransactionIDs            :: Maybe [TransactionID]
-    , orderTransactionResponseLastTransactionID                :: Maybe TransactionID
-    } deriving (Show)
-deriveJSON (unPrefix "orderTransactionResponse") ''OrderTransactionResponse
-=======
     { orderTransaction_Type                    :: Maybe TransactionType
     , orderTransaction_OrderID                 :: Maybe OrderID
     , orderTransaction_TradeID                 :: Maybe TransactionID
@@ -411,7 +383,6 @@ data OrderTransactionResponse =  OrderTransactionResponse
     , orderTransactionResponse_LastTransactionID                :: Maybe TransactionID
     } deriving (Show)
 deriveJSON (unPrefix "orderTransactionResponse_") ''OrderTransactionResponse
->>>>>>> master
 
 oandaModifyTrade :: OandaEnv -> AccountID -> TransactionID -> TradeOrder -> OANDARequest OrderTransactionResponse
 oandaModifyTrade env (AccountID accountId) transactionID tradeOrder = OANDARequest request
