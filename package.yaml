@@ -57,17 +57,8 @@ tests:
   tests:
     main: Spec.hs
     source-dirs:
-      - src
       - tests
     dependencies:
       - oanda-rest-api
       - hspec
       - HUnit
-    ghc-options: -Wall
-  style:
-    main: HLint.hs
-    source-dirs:
-      - tests
-    dependencies:
-      - hlint
-    ghc-options: -Wall
