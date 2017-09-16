@@ -156,7 +156,7 @@ data CandlestickArgs
   , _candlestickArgsDailyAlignment :: Maybe Int
   , _candlestickArgsAlignmentTimezone :: Maybe String
   , _candlestickArgsWeeklyAlignment :: Maybe WeeklyAlignment
-  }
+  } deriving (Show)
 
 candlestickArgs :: InstrumentName -> CandlestickGranularity -> CandlestickArgs
 candlestickArgs instrument granularity =
