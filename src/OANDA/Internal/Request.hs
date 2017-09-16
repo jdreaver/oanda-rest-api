@@ -101,6 +101,5 @@ instance (Integral a) => FromJSON (DecimalRaw a) where
   parseJSON _          = mempty
 
 
-readDecimalJSON :: (Num i, Applicative f) => Scientific -> f (DecimalRaw i)
-readDecimalJSON n = pure $ Decimal ((*) (-1) $ fromIntegral $ base10Exponent n)
-                                    (fromIntegral $ coefficient n)
+readDecimalJSON :: (Integral i, Applicative f) => Scientific -> f (DecimalRaw i)
+readDecimalJSON n = pure $ fromRational $ toRational n
