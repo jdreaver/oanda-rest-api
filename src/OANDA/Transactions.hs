@@ -58,9 +58,9 @@ deriveJSON defaultOptions ''OrderState
 
 data ClientExtensions
   = ClientExtensions
-  { clientExtensionsId :: Text
-  , clientExtensionsTag :: Text
-  , clientExtensionsComment :: Text
+  { clientExtensionsId :: Maybe Text
+  , clientExtensionsTag :: Maybe Text
+  , clientExtensionsComment :: Maybe Text
   } deriving (Show)
 
 deriveJSON (unPrefix "clientExtensions") ''ClientExtensions
