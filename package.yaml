@@ -1,12 +1,12 @@
 name: oanda-rest-api
-version: "0.4.1"
+version: "0.5.0"
 synopsis: Client to the OANDA REST API
 description: Client to the OANDA REST API
 license: BSD3
 license-file: LICENSE
 author: John David Reaver
 maintainer: johndreaver@gmail.com
-copyright: (c) 2015-2016 John David Reaver
+copyright: (c) 2015-2018 John David Reaver
 category: API
 stability: experimental
 extra-source-files:
@@ -41,6 +41,8 @@ default-extensions:
   - TemplateHaskell
   - TupleSections
 
+ghc-options: -Wall
+
 library:
   source-dirs:
     - src
@@ -49,7 +51,6 @@ library:
     - OANDA.Internal.Import
     - OANDA.Internal.Request
     - OANDA.Internal.Types
-  ghc-options: -Wall
 
 tests:
   tests:
