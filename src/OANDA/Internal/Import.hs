@@ -25,10 +25,8 @@ import Data.Scientific as X
 import Data.String as X (IsString (..), fromString)
 import Data.Text as X (Text, unpack, pack)
 import Data.Text.Encoding as X
-import Data.Thyme as X
-import Data.Thyme.Format.Aeson as X ()
+import Data.Time as X
 import Network.HTTP.Simple as X
-import System.Locale as X (defaultTimeLocale)
 import Text.Read (readMaybe)
 
 -- | Aeson Options that remove the prefix from fields

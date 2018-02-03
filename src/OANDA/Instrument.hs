@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 -- | Defines the endpoints listed in the
 -- <http://developer.oanda.com/rest-live-v20/instrument-ep/ Instrument> section of the
 -- API.
@@ -56,57 +58,57 @@ data CandlestickGranularity
 deriveJSON defaultOptions ''CandlestickGranularity
 
 granularityFromDiffTime :: NominalDiffTime -> Maybe CandlestickGranularity
-granularityFromDiffTime = go . toSeconds'
-  where
-    go 5 = Just S5
-    go 10 = Just S10
-    go 15 = Just S15
-    go 30 = Just S30
-    go 60 = Just M1
-    go 120 = Just M2
-    go 240 = Just M4
-    go 300 = Just M5
-    go 600 = Just M10
-    go 900 = Just M15
-    go 1800 = Just M30
-    go 3600 = Just H1
-    go 7200 = Just H2
-    go 10800 = Just H3
-    go 14400 = Just H4
-    go 21600 = Just H6
-    go 28800 = Just H8
-    go 43200 = Just H12
-    go 86400 = Just D
-    go 604800 = Just W
-    -- go _ = Just M  -- Not well-defined for a month
-    go _ = Nothing
+granularityFromDiffTime =
+  \case
+    5 -> Just S5
+    10 -> Just S10
+    15 -> Just S15
+    30 -> Just S30
+    60 -> Just M1
+    120 -> Just M2
+    240 -> Just M4
+    300 -> Just M5
+    600 -> Just M10
+    900 -> Just M15
+    1800 -> Just M30
+    3600 -> Just H1
+    7200 -> Just H2
+    10800 -> Just H3
+    14400 -> Just H4
+    21600 -> Just H6
+    28800 -> Just H8
+    43200 -> Just H12
+    86400 -> Just D
+    604800 -> Just W
+    -- _ -> Just M  -- Not well-defined for a month
+    _ -> Nothing
 
 -- | Utility function to convert Granularity to NominalDiffTime. __NOTE__: The
 -- conversion from month to NominalDiffTime is not correct in general; we just
 -- assume 31 days in a month, which is obviously false for 5 months of the
 -- year.
 granularityToDiffTime :: CandlestickGranularity -> NominalDiffTime
-granularityToDiffTime S5 = fromSeconds' 5
-granularityToDiffTime S10 = fromSeconds' 10
-granularityToDiffTime S15 = fromSeconds' 15
-granularityToDiffTime S30 = fromSeconds' 30
-granularityToDiffTime M1 = fromSeconds' $ 1 * 60
-granularityToDiffTime M2 = fromSeconds' $ 2 * 60
-granularityToDiffTime M4 = fromSeconds' $ 4 * 60
-granularityToDiffTime M5 = fromSeconds' $ 5 * 60
-granularityToDiffTime M10 = fromSeconds' $ 10 * 60
-granularityToDiffTime M15 = fromSeconds' $ 15 * 60
-granularityToDiffTime M30 = fromSeconds' $ 30 * 60
-granularityToDiffTime H1 = fromSeconds' $ 1 * 60 * 60
-granularityToDiffTime H2 = fromSeconds' $ 2 * 60 * 60
-granularityToDiffTime H3 = fromSeconds' $ 3 * 60 * 60
-granularityToDiffTime H4 = fromSeconds' $ 4 * 60 * 60
-granularityToDiffTime H6 = fromSeconds' $ 6 * 60 * 60
-granularityToDiffTime H8 = fromSeconds' $ 8 * 60 * 60
-granularityToDiffTime H12 = fromSeconds' $ 12 * 60 * 60
-granularityToDiffTime D = fromSeconds' $ 1 * 60 * 60 * 24
-granularityToDiffTime W = fromSeconds' $ 7 * 60 * 60 * 24
-granularityToDiffTime M = fromSeconds' $ 31 * 60 * 60 * 24
+granularityToDiffTime S5 = 5
+granularityToDiffTime S10 = 10
+granularityToDiffTime S15 = 15
+granularityToDiffTime S30 = 30
+granularityToDiffTime M1 = 1 * 60
+granularityToDiffTime M2 = 2 * 60
+granularityToDiffTime M4 = 4 * 60
+granularityToDiffTime M5 = 5 * 60
+granularityToDiffTime M10 = 10 * 60
+granularityToDiffTime M15 = 15 * 60
+granularityToDiffTime M30 = 30 * 60
+granularityToDiffTime H1 = 1 * 60 * 60
+granularityToDiffTime H2 = 2 * 60 * 60
+granularityToDiffTime H3 = 3 * 60 * 60
+granularityToDiffTime H4 = 4 * 60 * 60
+granularityToDiffTime H6 = 6 * 60 * 60
+granularityToDiffTime H8 = 8 * 60 * 60
+granularityToDiffTime H12 = 12 * 60 * 60
+granularityToDiffTime D = 1 * 60 * 60 * 24
+granularityToDiffTime W = 7 * 60 * 60 * 24
+granularityToDiffTime M = 31 * 60 * 60 * 24
 
 data WeeklyAlignment
   = Monday

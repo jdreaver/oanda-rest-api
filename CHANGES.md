@@ -1,5 +1,11 @@
 # Changelog
 
+
+## 0.5.0
+
+- Use `time` instead of `thyme`. `time` is a lot faster now, and `thyme` seems
+  unmaintained.
+
 ## 0.4.1
 
 - Fix style suggestions for newer hlint
