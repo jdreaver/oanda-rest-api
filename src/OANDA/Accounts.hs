@@ -15,6 +15,8 @@ module OANDA.Accounts
   , Account (..)
   , Position (..)
   , PositionSide (..)
+  , oandaAccountSummary
+  , AccountSummaryResponse (..)
   ) where
 
 import qualified Data.ByteString.Char8 as BS8
@@ -99,10 +101,10 @@ data Account =
   , accountWithdrawalLimit :: AccountUnits
   , accountMarginCallMarginUsed :: AccountUnits
   , accountMarginCallPercent :: Decimal
-  , accountLastTransactionID :: TransactionID
+  , accountLastTransactionID :: Maybe TransactionID
   -- TODO: accountTrades :: [TradeSummary]
-  , accountPositions :: [Position]
-  , accountOrders :: [Order]
+  , accountPositions :: Maybe [Position]
+  , accountOrders :: Maybe [Order]
   } deriving (Show)
 
 deriveJSON (unPrefix "account") ''Account
@@ -175,7 +177,21 @@ oandaAccountChanges env (AccountID accountId) (TransactionID sinceId) = OANDAReq
       & setRequestQueryString params
     params = [("sinceTransactionID", Just (BS8.pack $ show sinceId))]
 
+
+-- | Account Summary
+data AccountSummaryResponse = AccountSummaryResponse
+    { accountSummaryResponseAccount :: Account
+    , accountSummaryResponseLastTransactionID :: TransactionID
+    } deriving (Show)
+
+deriveJSON (unPrefix "accountSummaryResponse") ''AccountSummaryResponse
+
+oandaAccountSummary :: OandaEnv -> AccountID -> OANDARequest AccountSummaryResponse
+oandaAccountSummary env (AccountID accountId) = OANDARequest request
+  where
+    request = baseApiRequest env "GET" ("/v3/accounts/" ++ accountId ++ "/summary")
+
+
 -- TODO:
--- GET /v3/accounts/{AccoundId}/summary
 -- GET /v3/accounts/{AccoundId}/instruments
 -- PATCH /v3/accounts/{AccoundId}/configuration
