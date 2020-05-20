@@ -40,7 +40,7 @@ newtype OANDAStreamingRequest a = OANDAStreamingRequest { unOANDAStreamingReques
   deriving (Show)
 
 -- | Simplest way to make streaming, but throws exception on errors.
-makeOandaStreamingRequest :: (MonadResource m, FromJSON a) => OANDAStreamingRequest a -> Source m a
+makeOandaStreamingRequest :: (MonadResource m, FromJSON a) => OANDAStreamingRequest a -> ConduitT () a m ()
 makeOandaStreamingRequest (OANDAStreamingRequest request) = httpSource request parseBody
   where
     --parseBody :: (MonadIO m) => Response (Source m ByteString) -> Source m a
