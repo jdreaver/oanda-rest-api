@@ -1,0 +1,73 @@
+name:         oanda-rest-api
+version:      0.5.0
+synopsis:     Client to the OANDA REST API
+description:  Client to the OANDA REST API
+homepage:     https://github.com/jdreaver/oanda-rest-api
+license:      BSD3
+license-file: LICENSE
+author:       John David Reaver
+maintainer:   johndreaver@gmail.com
+copyright:    (c) 2015-2018 John David Reaver
+category:     API
+stability:    experimental
+build-type:    Simple              
+cabal-version: >=1.10
+
+extra-source-files:
+               README.md
+               CHANGES.md
+               -- stack.yaml
+
+source-repository head
+  type:         git
+  location:     https://github.com/jdreaver/oanda-rest-api
+
+library
+  hs-source-dirs:
+                src
+  ghc-options:  -Wall -threaded -O2                
+  build-depends:          
+                base       >= 4.8 && < 5
+              , aeson      >= 0.8.0
+              , bytestring >= 0.10.0
+              , conduit
+              , containers >= 0.5.2
+              , Decimal    >= 0.4.2
+              , http-client
+              , http-conduit
+              , lens       >= 4.0
+              , resourcet
+              , scientific >= 0.3.3.0
+              , text       >= 1.2.0
+              , time
+              , vector     >= 0.10.0
+
+  other-modules:
+                OANDA.Internal
+              , OANDA.Internal.Import
+              , OANDA.Internal.Request
+              , OANDA.Internal.Types
+  default-language:
+                Haskell2010
+  default-extensions:
+                CPP
+              , GeneralizedNewtypeDeriving
+              , OverloadedStrings
+              , RecordWildCards
+              , ScopedTypeVariables
+              , TemplateHaskell
+              , TupleSections
+
+test-suite tests
+  type:         exitcode-stdio-1.0
+  main-is:      Spec.hs
+  build-depends:
+                oanda-rest-api
+              , hspec
+              , HUnit
+  default-language:
+                Haskell2010              
+
+                
+              
+                            
